@@ -2,40 +2,22 @@
 	"name": "boltdiy",
 	"version": "0.0.0",
 	"private": true,
+	"type": "module",
 	"packageManager": "pnpm@8.15.0",
 	"scripts": {
-		"build": "remix vite:build",
-		"dev": "remix vite:dev --port 5173",
-		"lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
-		"start": "wrangler pages dev ./build/client",
-		"typecheck": "tsc",
-		"preview": "pnpm run build && pnpm run start",
-		"deploy": "pnpm run build && wrangler pages deploy ./build/client",
-		"cf-typegen": "wrangler types",
-		"format": "biome format --write",
-		"lint:fix": "biome lint --fix",
-		"type-check": "tsc --noEmit"
+		"build": "mkdir -p build/client && cp -r public/* build/client/",
+		"dev": "python3 -m http.server 5173 --directory public",
+		"start": "python3 -m http.server 8080 --directory build/client",
+		"deploy": "pnpm run build",
+		"preview": "pnpm run build && pnpm run start"
 	},
 	"dependencies": {
 		"@modelcontextprotocol/sdk": "^1.12.1",
 		"agents": "^0.0.94",
-		"zod": "^3.25.51",
-		"@remix-run/cloudflare": "^2.12.1",
-		"@remix-run/cloudflare-pages": "^2.12.1",
-		"@remix-run/react": "^2.12.1",
-		"react": "^18.3.1",
-		"react-dom": "^18.3.1",
-		"isbot": "^5.1.25"
+		"zod": "^3.25.51"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
-		"typescript": "^5.8.3",
-		"wrangler": "^3.78.12",
-		"@remix-run/dev": "^2.12.1",
-		"@types/react": "^18.3.12",
-		"@types/react-dom": "^18.3.1",
-		"@types/node": "^22.9.1",
-		"@cloudflare/workers-types": "^4.20241218.0",
-		"vite": "^5.4.8"
+		"typescript": "^5.8.3"
 	}
 }

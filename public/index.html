@@ -1,356 +1,222 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BoltDIY - AI Agent Platform</title>
+    <title>BoltDIY - Agent Platform المتقدمة</title>
+    <meta name="description" content="منصة الذكاء الاصطناعي الشاملة مع نظام إدارة الوكلاء المتقدم">
+    <meta name="theme-color" content="#1f2937">
     
-    <!-- TailwindCSS for responsive design -->
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='40' fill='%234F46E5'/%3E%3Ctext x='50' y='55' text-anchor='middle' fill='white' font-size='16' font-weight='bold'%3EBD%3C/text%3E%3C/svg%3E">
+    
+    <!-- External CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Monaco Editor -->
-    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.47.0/min/vs/loader.js"></script>
-    
-    <!-- Transformers.js for semantic search -->
-    <script type="module" src="https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/dist/transformers.min.js"></script>
-    
-    <!-- Tesseract.js for OCR -->
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js"></script>
-    
-    <!-- Yjs for collaborative editing -->
-    <script src="https://cdn.jsdelivr.net/npm/yjs@13.6.18/dist/yjs.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/y-monaco@0.1.6/dist/index.js"></script>
-    
-    <!-- Xterm.js for terminal -->
-    <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css" />
-    
-    <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    screens: {
-                        'xs': '360px',
-                        'sm': '640px',
-                        'md': '768px',
-                        'lg': '1024px',
-                        'xl': '1280px',
-                    },
-                    fontSize: {
-                        'xs': ['12px', '16px'],
-                        'sm': ['14px', '20px'],
-                        'base': ['14px', '24px'],
-                        'lg': ['16px', '24px'],
-                        'xl': ['18px', '28px'],
-                        '2xl': ['20px', '28px'],
-                    }
-                }
-            }
-        }
-    </script>
-    
-    <style>
-        .monaco-editor { 
-            --vscode-editor-background: #1e1e1e !important; 
-        }
-        .xterm { 
-            padding: 4px !important; 
-        }
-        @media (max-width: 768px) {
-            .monaco-editor .margin { display: none !important; }
-            .monaco-editor .minimap { display: none !important; }
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/editor/editor.main.css">
 </head>
-
-<body class="h-full bg-gray-950 text-gray-100 overflow-hidden">
-    <!-- Mobile-first responsive layout -->
-    <div id="app" class="flex flex-col h-full max-w-screen min-w-0">
-        
-        <!-- Header - Mobile optimized -->
-        <header class="flex items-center justify-between px-2 sm:px-4 py-1 sm:py-2 bg-gray-900 border-b border-gray-800 shrink-0">
-            <div class="flex items-center gap-1 sm:gap-2 min-w-0">
-                <button id="menu-toggle" class="sm:hidden p-1 rounded hover:bg-gray-800">
-                    <i class="fas fa-bars text-sm"></i>
-                </button>
-                <h1 class="text-lg sm:text-xl font-bold truncate">BoltDIY</h1>
-                <span class="hidden sm:inline text-xs text-gray-400">AI Agent Platform</span>
+<body class="bg-gray-900 text-white antialiased">
+    <!-- Header -->
+    <header class="bg-gray-800 shadow-lg border-b border-gray-700">
+        <div class="flex items-center justify-between p-2 max-w-full">
+            <div class="flex items-center gap-2">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='40' fill='%234F46E5'/%3E%3Ctext x='50' y='55' text-anchor='middle' fill='white' font-size='16' font-weight='bold'%3EBD%3C/text%3E%3C/svg%3E" alt="BoltDIY" class="w-6 h-6">
+                <h1 class="text-lg font-bold text-white hidden sm:block">BoltDIY Agent Platform</h1>
             </div>
-            
-            <div class="flex items-center gap-1 sm:gap-2 shrink-0">
-                <button id="search-toggle" class="p-1 sm:p-2 rounded hover:bg-gray-800 text-xs sm:text-sm">
-                    <i class="fas fa-search"></i>
+
+            <div class="flex items-center gap-2">
+                <div id="agent-status" class="bg-gray-700 px-2 py-1 rounded text-xs hidden sm:block">
+                    <span class="agent-indicator">🤖</span>
+                    <span class="agent-name">جاهز</span>
+                </div>
+                <button id="settings-btn" class="p-2 hover:bg-gray-700 rounded">
+                    <i class="fas fa-cog text-gray-300"></i>
                 </button>
-                <button id="terminal-toggle" class="p-1 sm:p-2 rounded hover:bg-gray-800 text-xs sm:text-sm">
-                    <i class="fas fa-terminal"></i>
-                </button>
-                <button id="settings-toggle" class="p-1 sm:p-2 rounded hover:bg-gray-800 text-xs sm:text-sm">
-                    <i class="fas fa-cog"></i>
+                <button id="toggle-sidebar" class="p-2 hover:bg-gray-700 rounded lg:hidden">
+                    <i class="fas fa-bars text-gray-300"></i>
                 </button>
             </div>
-        </header>
+        </div>
+    </header>
 
-        <!-- Main Content Area -->
-        <div class="flex flex-1 min-h-0">
-            
-            <!-- Sidebar - Collapsible on mobile -->
-            <aside id="sidebar" class="w-64 sm:w-72 bg-gray-900 border-r border-gray-800 transform -translate-x-full sm:translate-x-0 transition-transform duration-200 z-20 absolute sm:relative h-full">
-                <div class="flex flex-col h-full">
-                    
-                    <!-- File Explorer -->
-                    <div class="flex-1 p-2 overflow-y-auto max-h-[50vh] sm:max-h-none">
-                        <div class="flex items-center justify-between mb-2">
-                            <h3 class="text-sm font-medium">Files</h3>
-                            <button id="new-file" class="p-1 rounded hover:bg-gray-800 text-xs">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                        </div>
-                        <div id="file-tree" class="text-sm space-y-1">
-                            <!-- File tree will be populated here -->
-                        </div>
-                    </div>
-                    
-                    <!-- AI Agent Panel -->
-                    <div class="border-t border-gray-800 p-2 max-h-[50vh] sm:max-h-none flex flex-col">
-                        <h3 class="text-sm font-medium mb-2">AI Agent</h3>
-                        <div class="flex-1 bg-gray-800 rounded p-2 text-xs overflow-y-auto max-h-32 sm:max-h-48">
-                            <div id="agent-status" class="text-green-400 mb-1">🟢 Ready</div>
-                            <div id="agent-context" class="text-gray-400 text-xs space-y-1">
-                                <div>Language: <span id="current-language">None</span></div>
-                                <div>File: <span id="current-file">None</span></div>
-                            </div>
-                        </div>
-                        
-                        <!-- Agent Input -->
-                        <div class="mt-2">
-                            <input id="agent-input" 
-                                   type="text" 
-                                   placeholder="Ask AI agent..." 
-                                   class="w-full p-2 bg-gray-800 border border-gray-700 rounded text-xs focus:border-blue-500 focus:outline-none">
-                            <div class="mt-1 flex gap-1 flex-wrap">
-                                <button class="agent-cmd text-xs px-2 py-1 bg-blue-600 rounded hover:bg-blue-500" data-cmd="/explain">Explain</button>
-                                <button class="agent-cmd text-xs px-2 py-1 bg-blue-600 rounded hover:bg-blue-500" data-cmd="/refactor">Refactor</button>
-                                <button class="agent-cmd text-xs px-2 py-1 bg-blue-600 rounded hover:bg-blue-500" data-cmd="/test">Test</button>
-                            </div>
-                        </div>
-                    </div>
+    <!-- Main Container -->
+    <div class="flex h-[calc(100vh-64px)] overflow-hidden">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="w-64 bg-gray-800 border-r border-gray-700 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 fixed lg:relative z-30 h-full overflow-y-auto">
+            <!-- File Explorer -->
+            <div class="p-3 border-b border-gray-700">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-sm font-medium text-gray-300">الملفات</h3>
+                    <button id="new-file-btn" class="text-xs bg-blue-600 hover:bg-blue-700 px-2 py-1 rounded">
+                        <i class="fas fa-plus mr-1"></i>جديد
+                    </button>
                 </div>
-            </aside>
+                <div id="file-tree" class="text-sm">
+                    <!-- سيتم ملؤها بـ JavaScript -->
+                </div>
+            </div>
 
-            <!-- Main Editor Area -->
-            <main class="flex-1 flex flex-col min-w-0">
-                
-                <!-- Editor Tabs -->
-                <div id="editor-tabs" class="flex bg-gray-800 border-b border-gray-700 overflow-x-auto text-xs sm:text-sm">
-                    <!-- Tabs will be populated here -->
+            <!-- Agent Context -->
+            <div id="agent-context" class="p-3 border-b border-gray-700">
+                <h3 class="text-sm font-medium text-gray-300 mb-2">سياق الوكيل</h3>
+                <!-- سيتم ملؤها بـ JavaScript -->
+            </div>
+
+            <!-- Tools & Actions -->
+            <div class="p-3">
+                <h3 class="text-sm font-medium text-gray-300 mb-2">الأدوات</h3>
+                <div class="space-y-1">
+                    <button class="w-full text-left text-xs p-2 hover:bg-gray-700 rounded">
+                        <i class="fas fa-search mr-2"></i>بحث دلالي (Ctrl+K)
+                    </button>
+                    <button class="w-full text-left text-xs p-2 hover:bg-gray-700 rounded">
+                        <i class="fas fa-terminal mr-2"></i>المحطة الطرفية
+                    </button>
+                    <button class="w-full text-left text-xs p-2 hover:bg-gray-700 rounded">
+                        <i class="fas fa-camera mr-2"></i>OCR - تحليل الصور
+                    </button>
                 </div>
-                
-                <!-- Monaco Editor Container -->
-                <div class="flex-1 relative">
-                    <div id="monaco-container" class="w-full h-full"></div>
-                    
-                    <!-- Loading overlay -->
-                    <div id="editor-loading" class="absolute inset-0 bg-gray-900 flex items-center justify-center">
-                        <div class="text-center">
-                            <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
-                            <div class="text-sm">Loading Editor...</div>
-                        </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <!-- Monaco Editor Container -->
+            <div class="flex-1 relative">
+                <div id="monaco-container" class="w-full h-full">
+                    <!-- سيتم تحميل Monaco Editor هنا -->
+                </div>
+            </div>
+
+            <!-- Terminal -->
+            <div id="terminal-container" class="h-48 bg-black border-t border-gray-700 hidden">
+                <div class="flex items-center justify-between bg-gray-800 px-3 py-1 border-b border-gray-700">
+                    <span class="text-xs text-gray-300">المحطة الطرفية</span>
+                    <button id="toggle-terminal" class="text-xs text-gray-400 hover:text-white">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="terminal" class="h-full">
+                    <!-- سيتم تحميل xterm.js هنا -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- AI Agent Input -->
+    <div class="fixed bottom-4 right-4 w-80 max-w-[calc(100vw-2rem)]">
+        <div class="bg-gray-800 rounded-lg shadow-xl border border-gray-700">
+            <div class="flex items-center justify-between p-3 border-b border-gray-700">
+                <span class="text-sm font-medium text-white">🤖 مساعد الذكاء الاصطناعي</span>
+                <button id="minimize-ai" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-minus"></i>
+                </button>
+            </div>
+            <div class="p-3">
+                <textarea id="agent-input" placeholder="اسأل الوكيل الذكي..." class="w-full bg-gray-700 text-white placeholder-gray-400 border border-gray-600 rounded p-2 text-sm resize-none focus:outline-none focus:border-blue-500" rows="2"></textarea>
+                <div class="flex items-center justify-between mt-2">
+                    <div class="flex gap-1">
+                        <span class="text-xs text-gray-500">اضغط Enter للإرسال</span>
                     </div>
+                    <button id="send-agent" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs">
+                        إرسال
+                    </button>
                 </div>
-                
-                <!-- Terminal Panel - Collapsible -->
-                <div id="terminal-panel" class="hidden border-t border-gray-700">
-                    <div class="flex items-center justify-between p-2 bg-gray-800">
-                        <h3 class="text-sm font-medium">Terminal</h3>
-                        <button id="terminal-close" class="text-xs hover:text-red-400">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <div id="terminal-container" class="h-48 sm:h-64"></div>
-                </div>
-            </main>
+            </div>
         </div>
     </div>
 
-    <!-- Global Search Modal -->
-    <div id="search-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-start justify-center pt-4 sm:pt-16">
-        <div class="bg-gray-900 rounded-lg w-[95vw] sm:w-[80vw] max-w-4xl max-h-[90vh] overflow-hidden border border-gray-700">
-            <div class="p-3 sm:p-4 border-b border-gray-700">
-                <input id="search-input" 
-                       type="text" 
-                       placeholder="Search files, symbols, or ask questions..." 
-                       class="w-full p-2 sm:p-3 bg-gray-800 border border-gray-600 rounded text-sm focus:border-blue-500 focus:outline-none">
-                <div class="mt-2 text-xs text-gray-400">
-                    Try: "Find all API calls", "Where is login implemented?", or use Ctrl+K
+    <!-- Search Modal -->
+    <div id="search-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-start justify-center pt-20">
+        <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl mx-4">
+            <div class="p-4 border-b border-gray-700">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-search text-gray-400"></i>
+                    <input id="search-input" type="text" placeholder="البحث الدلالي..." class="flex-1 bg-transparent text-white placeholder-gray-400 outline-none">
+                    <button id="close-search" class="text-gray-400 hover:text-white">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
             </div>
-            <div id="search-results" class="p-3 sm:p-4 max-h-96 overflow-y-auto">
-                <!-- Search results will be populated here -->
+            <div id="search-results" class="max-h-96 overflow-y-auto">
+                <!-- نتائج البحث -->
             </div>
         </div>
     </div>
 
     <!-- Settings Modal -->
-    <div id="settings-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4">
-        <div class="bg-gray-900 rounded-lg w-full sm:w-[80vw] max-w-2xl max-h-[90vh] overflow-hidden border border-gray-700">
-            <div class="p-3 sm:p-4 border-b border-gray-700">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-lg font-bold">Settings</h2>
-                    <button id="settings-close" class="text-xl hover:text-red-400">
-                        <i class="fas fa-times"></i>
-                    </button>
+    <div id="settings-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+        <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-md mx-4">
+            <div class="p-4 border-b border-gray-700">
+                <h3 class="text-lg font-semibold text-white">الإعدادات</h3>
+            </div>
+            <div class="p-4 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">مفتاح OpenAI API</label>
+                    <input id="openai-key" type="password" placeholder="sk-..." class="w-full bg-gray-700 text-white placeholder-gray-400 border border-gray-600 rounded p-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">مفتاح Anthropic API</label>
+                    <input id="anthropic-key" type="password" placeholder="sk-ant-..." class="w-full bg-gray-700 text-white placeholder-gray-400 border border-gray-600 rounded p-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">مفتاح Google AI API</label>
+                    <input id="google-key" type="password" placeholder="AIza..." class="w-full bg-gray-700 text-white placeholder-gray-400 border border-gray-600 rounded p-2 text-sm">
                 </div>
             </div>
-            <div class="p-3 sm:p-4 overflow-y-auto max-h-[70vh]">
-                
-                <!-- API Keys Section -->
-                <div class="mb-6">
-                    <h3 class="text-base font-medium mb-3">AI Models & API Keys</h3>
-                    <div class="space-y-3">
-                        <div>
-                            <label class="block text-sm mb-1">OpenAI API Key</label>
-                            <input type="password" class="w-full p-2 bg-gray-800 border border-gray-600 rounded text-sm" placeholder="sk-...">
-                        </div>
-                        <div>
-                            <label class="block text-sm mb-1">Anthropic API Key</label>
-                            <input type="password" class="w-full p-2 bg-gray-800 border border-gray-600 rounded text-sm" placeholder="sk-ant-...">
-                        </div>
-                        <div>
-                            <label class="block text-sm mb-1">Google AI API Key</label>
-                            <input type="password" class="w-full p-2 bg-gray-800 border border-gray-600 rounded text-sm" placeholder="AI...">
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Language Model Mapping -->
-                <div class="mb-6">
-                    <h3 class="text-base font-medium mb-3">Language-Aware AI Models</h3>
-                    <div class="text-xs text-gray-400 mb-3">Configure which AI model to use for each language</div>
-                    <div class="space-y-2 text-sm">
-                        <div class="flex items-center justify-between">
-                            <span>Python</span>
-                            <select class="bg-gray-800 border border-gray-600 rounded px-2 py-1 text-xs">
-                                <option>GPT-4</option>
-                                <option>Claude-3</option>
-                                <option>Gemini Pro</option>
-                            </select>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span>JavaScript/TypeScript</span>
-                            <select class="bg-gray-800 border border-gray-600 rounded px-2 py-1 text-xs">
-                                <option>GPT-4o</option>
-                                <option>Claude-3</option>
-                                <option>Gemini Pro</option>
-                            </select>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span>HTML/CSS</span>
-                            <select class="bg-gray-800 border border-gray-600 rounded px-2 py-1 text-xs">
-                                <option>Gemini Vision</option>
-                                <option>GPT-4o</option>
-                                <option>Claude-3</option>
-                            </select>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span>Bash/Shell</span>
-                            <select class="bg-gray-800 border border-gray-600 rounded px-2 py-1 text-xs">
-                                <option>Claude-3</option>
-                                <option>GPT-4</option>
-                                <option>Gemini Pro</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Editor Settings -->
-                <div class="mb-6">
-                    <h3 class="text-base font-medium mb-3">Editor Preferences</h3>
-                    <div class="space-y-3">
-                        <label class="flex items-center gap-2">
-                            <input type="checkbox" class="rounded bg-gray-800 border-gray-600">
-                            <span class="text-sm">Enable AI inline suggestions</span>
-                        </label>
-                        <label class="flex items-center gap-2">
-                            <input type="checkbox" class="rounded bg-gray-800 border-gray-600" checked>
-                            <span class="text-sm">Auto-save files</span>
-                        </label>
-                        <label class="flex items-center gap-2">
-                            <input type="checkbox" class="rounded bg-gray-800 border-gray-600" checked>
-                            <span class="text-sm">Enable collaborative editing (Yjs)</span>
-                        </label>
-                    </div>
-                </div>
-                
-                <!-- Mobile Settings -->
-                <div class="mb-6 sm:hidden">
-                    <h3 class="text-base font-medium mb-3">Mobile Settings</h3>
-                    <div class="space-y-3">
-                        <label class="flex items-center gap-2">
-                            <input type="checkbox" class="rounded bg-gray-800 border-gray-600" checked>
-                            <span class="text-sm">Hide line numbers on mobile</span>
-                        </label>
-                        <label class="flex items-center gap-2">
-                            <input type="checkbox" class="rounded bg-gray-800 border-gray-600" checked>
-                            <span class="text-sm">Hide minimap on mobile</span>
-                        </label>
-                    </div>
-                </div>
+            <div class="p-4 border-t border-gray-700 flex justify-end gap-2">
+                <button id="cancel-settings" class="px-4 py-2 text-gray-300 hover:text-white">إلغاء</button>
+                <button id="save-settings" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">حفظ</button>
             </div>
         </div>
     </div>
 
-    <!-- Image Upload Modal for OCR -->
-    <div id="ocr-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4">
-        <div class="bg-gray-900 rounded-lg w-full sm:w-[80vw] max-w-2xl max-h-[90vh] overflow-hidden border border-gray-700">
-            <div class="p-3 sm:p-4 border-b border-gray-700">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-lg font-bold">Image to Code (OCR)</h2>
-                    <button id="ocr-close" class="text-xl hover:text-red-400">
-                        <i class="fas fa-times"></i>
-                    </button>
+    <!-- OCR Modal -->
+    <div id="ocr-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+        <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl mx-4">
+            <div class="p-4 border-b border-gray-700">
+                <h3 class="text-lg font-semibold text-white">تحليل الصور (OCR)</h3>
+            </div>
+            <div class="p-4">
+                <div id="drop-zone" class="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center">
+                    <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+                    <p class="text-gray-300 mb-2">اسحب الصورة هنا أو انقر للاختيار</p>
+                    <p class="text-sm text-gray-500">PNG, JPG, GIF - حتى 10MB</p>
+                    <input id="file-input" type="file" accept="image/*" class="hidden">
+                </div>
+                <div id="ocr-results" class="mt-4 hidden">
+                    <!-- نتائج OCR -->
                 </div>
             </div>
-            <div class="p-3 sm:p-4">
-                <div id="drop-zone" class="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center hover:border-blue-500 transition-colors">
-                    <i class="fas fa-upload text-4xl text-gray-400 mb-4"></i>
-                    <p class="text-sm text-gray-400 mb-2">Drop screenshots, whiteboards, or sketches here</p>
-                    <p class="text-xs text-gray-500">Or click to browse files</p>
-                    <input id="image-input" type="file" accept="image/*" class="hidden">
-                </div>
-                <div id="ocr-result" class="hidden mt-4">
-                    <h3 class="text-sm font-medium mb-2">Extracted Content:</h3>
-                    <textarea class="w-full h-32 p-2 bg-gray-800 border border-gray-600 rounded text-xs" readonly></textarea>
-                    <div class="mt-2 flex gap-2 flex-wrap">
-                        <button class="text-xs px-3 py-1 bg-blue-600 rounded hover:bg-blue-500">Create File</button>
-                        <button class="text-xs px-3 py-1 bg-green-600 rounded hover:bg-green-500">Generate Code</button>
-                        <button class="text-xs px-3 py-1 bg-purple-600 rounded hover:bg-purple-500">Fix Bugs</button>
-                    </div>
-                </div>
+            <div class="p-4 border-t border-gray-700 flex justify-end gap-2">
+                <button id="close-ocr" class="px-4 py-2 text-gray-300 hover:text-white">إغلاق</button>
             </div>
         </div>
     </div>
 
-    <!-- Overlay for mobile sidebar -->
-    <div id="sidebar-overlay" class="hidden sm:hidden fixed inset-0 bg-black bg-opacity-50 z-10"></div>
-
-    <!-- Toast notifications -->
+    <!-- Toast Container -->
     <div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2 max-w-sm"></div>
 
-    <!-- Scripts - تحميل الأنظمة المتقدمة -->
-    <script src="js/unified-ai-api.js"></script>
-    <script src="js/agent-tools.js"></script>
-    <script src="js/agent-manager.js"></script>
-    <script src="js/admin-dashboard.js"></script>
-    <script src="js/app.js"></script>
-    <script src="js/monaco-setup.js"></script>
-    <script src="js/semantic-search.js"></script>
-    <script src="js/ocr-handler.js"></script>
-    <script src="js/terminal.js"></script>
-    <script src="js/ai-agent.js"></script>
-    <script src="js/mobile-handlers.js"></script>
+    <!-- External Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
+    <script src="https://unpkg.com/@xenova/transformers@2.17.2/dist/transformers.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.4/dist/tesseract.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/yjs@13.6.10/dist/yjs.umd.min.js"></script>
+    
+    <!-- Application Scripts -->
+    <script src="/js/unified-ai-api.js" defer></script>
+    <script src="/js/agent-tools.js" defer></script>
+    <script src="/js/agent-manager.js" defer></script>
+    <script src="/js/admin-dashboard.js" defer></script>
+    <script src="/js/app.js" defer></script>
+    <script src="/js/monaco-setup.js" defer></script>
+    <script src="/js/semantic-search.js" defer></script>
+    <script src="/js/ocr-handler.js" defer></script>
+    <script src="/js/terminal.js" defer></script>
+    <script src="/js/ai-agent.js" defer></script>
+    <script src="/js/mobile-handlers.js" defer></script>
 </body>
 </html>

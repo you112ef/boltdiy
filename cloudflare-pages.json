@@ -5,7 +5,7 @@
     "nodejs_compat"
   ],
   "build": {
-    "command": "pnpm run build",
+    "command": "mkdir -p build/client && cp -r public/* build/client/",
     "destination": "build/client"
   },
   "preview": {

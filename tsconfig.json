@@ -1,19 +1,22 @@
 {
+	"include": ["remix.env.d.ts", "**/*.ts", "**/*.tsx", "worker-configuration.d.ts", "src/**/*.ts"],
 	"compilerOptions": {
-		"target": "es2021",
-		"lib": ["es2021"],
+		"lib": ["DOM", "DOM.Iterable", "ES6"],
+		"isolatedModules": true,
+		"esModuleInterop": true,
 		"jsx": "react-jsx",
-		"module": "es2022",
 		"moduleResolution": "bundler",
 		"resolveJsonModule": true,
-		"allowJs": true,
-		"checkJs": false,
-		"noEmit": true,
-		"isolatedModules": true,
-		"allowSyntheticDefaultImports": true,
-		"forceConsistentCasingInFileNames": true,
+		"target": "ES2022",
 		"strict": true,
-		"skipLibCheck": true
-	},
-	"include": ["worker-configuration.d.ts", "src/**/*.ts"]
+		"allowJs": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"baseUrl": ".",
+		"paths": {
+			"~/*": ["./app/*"]
+		},
+		"noEmit": true,
+		"allowSyntheticDefaultImports": true
+	}
 }

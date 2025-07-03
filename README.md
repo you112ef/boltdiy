@@ -125,7 +125,7 @@ public/
 
 ### المتطلبات
 - Node.js 18+
-- npm أو yarn
+- pnpm (مدير الحزم المُفضل)
 - مفاتيح API للذكاء الاصطناعي (اختياري)
 
 ### خطوات التثبيت
@@ -136,18 +136,43 @@ git clone <repository-url>
 cd boltdiy-agent-platform
 ```
 
-2. **تثبيت التبعيات**
+2. **تثبيت pnpm (إذا لم يكن مُثبتاً)**
 ```bash
-npm install
+npm install -g pnpm
 ```
 
-3. **تشغيل الخادم**
+3. **تثبيت التبعيات**
 ```bash
-npm run dev
+pnpm install
 ```
 
-4. **فتح التطبيق**
-   - افتح المتصفح على `http://localhost:8787`
+4. **تشغيل الخادم للتطوير**
+```bash
+pnpm run dev
+```
+
+5. **فتح التطبيق**
+   - افتح المتصفح على `http://localhost:5173`
+
+### 🌐 النشر على Cloudflare Pages
+
+#### النشر التلقائي:
+1. ارفع المشروع إلى GitHub/GitLab
+2. اربط المستودع بـ Cloudflare Pages
+3. استخدم الإعدادات:
+   - **Build command**: `Remix`
+   - **Build output directory**: `build/client`
+
+#### النشر اليدوي:
+```bash
+# بناء المشروع
+pnpm run build
+
+# نشر باستخدام wrangler
+pnpm run deploy
+```
+
+📖 **للتفاصيل الكاملة، راجع [دليل النشر](CLOUDFLARE_DEPLOYMENT.md)**
 
 ### ⚙️ تكوين مفاتيح API
 

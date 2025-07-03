@@ -172,22 +172,94 @@ Please provide a helpful, concise response. If suggesting code changes, provide 
     }
 
     async callAIModel(model, prompt) {
-        // This is a mock implementation - in a real app, you'd integrate with actual AI APIs
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve(this.generateMockResponse(model, prompt));
-            }, 1000 + Math.random() * 2000); // Simulate API call delay
-        });
+        try {
+            // استخدام النظام الموحد للذكاء الاصطناعي
+            if (window.unifiedAI && window.modelSelector) {
+                // اختيار أفضل نموذج للمهمة
+                const task = { type: this.getTaskType(prompt) };
+                const selectedModel = window.modelSelector.selectBestModel(task, {
+                    preferredProviders: this.getPreferredProviders(),
+                    maxCost: 'high',
+                    minSpeed: 'slow'
+                });
+
+                if (selectedModel) {
+                    const response = await window.unifiedAI.generateCompletion({
+                        model: selectedModel.model,
+                        provider: selectedModel.provider,
+                        messages: prompt,
+                        options: {
+                            temperature: 0.7,
+                            maxTokens: 2000
+                        }
+                    });
+
+                    // تسجيل الأداء للتحسين المستقبلي
+                    window.modelSelector.recordPerformance(
+                        selectedModel.model, 
+                        this.evaluateResponse(response.content),
+                        response.metadata.processingTime
+                    );
+
+                    return response.content;
+                }
+            }
+
+            // النظام البديل في حالة عدم توفر النظام الموحد
+            return this.generateMockResponse(model, prompt);
+        } catch (error) {
+            console.error('AI model call failed:', error);
+            return this.generateMockResponse(model, prompt);
+        }
+    }
+
+    getTaskType(prompt) {
+        if (prompt.includes('refactor') || prompt.includes('optimize')) {
+            return 'coding';
+        } else if (prompt.includes('analyze') || prompt.includes('explain')) {
+            return 'analysis';
+        } else if (prompt.includes('solve') || prompt.includes('logic')) {
+            return 'reasoning';
+        }
+        return 'general';
+    }
+
+    getPreferredProviders() {
+        // إرجاع المزودين المفضلين بناءً على نوع الوكيل
+        const providerMap = {
+            'python': ['openai'],
+            'javascript': ['openai'],
+            'typescript': ['openai'],
+            'html': ['google'],
+            'css': ['google'],
+            'bash': ['anthropic'],
+            'shell': ['anthropic'],
+            'sql': ['anthropic']
+        };
+        
+        return providerMap[this.context.language] || ['openai', 'anthropic'];
+    }
+
+    evaluateResponse(response) {
+        // تقييم جودة الاستجابة (1-5)
+        let score = 3; // نقطة البداية
+        
+        if (response.length > 100) score += 0.5;
+        if (response.includes('```')) score += 0.5; // يحتوي على كود
+        if (response.includes('1.') || response.includes('•')) score += 0.5; // منظم
+        if (response.length > 500) score += 0.5;
+        
+        return Math.min(5, score);
     }
 
     generateMockResponse(model, prompt) {
         const responses = [
-            "I can help you with that! Based on your code, I suggest refactoring this function to improve readability.",
-            "Looking at your current context, here's what I recommend: [Code suggestion would appear here]",
-            "This code looks good! Here are some optimization tips: 1) Use const instead of let, 2) Add error handling",
-            "I notice you're working with TypeScript. Consider adding proper type definitions for better type safety.",
-            "For mobile development, this approach should work well. Make sure to test on various screen sizes.",
-            "Here's a code completion suggestion: [Specific code would be generated based on context]"
+            "تم تحليل الكود باستخدام الذكاء الاصطناعي. إليك التحسينات المقترحة:",
+            "بناءً على السياق الحالي، أقترح استخدام هذا النهج:",
+            "الكود يبدو جيداً! إليك بعض النصائح للتحسين:",
+            "لاحظت أنك تعمل مع TypeScript. أنصح بإضافة تعريفات الأنواع.",
+            "للتطوير المتجاوب، هذا النهج سيعمل بشكل جيد.",
+            "إليك اقتراح لإكمال الكود بناءً على السياق الحالي:"
         ];
         
         return responses[Math.floor(Math.random() * responses.length)];

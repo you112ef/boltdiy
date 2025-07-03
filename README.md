@@ -1,255 +1,458 @@
-# BoltDIY AI Agent Platform 🚀
+# 🚀 منصة BoltDIY - Agent Platform المتقدمة
 
-A **mobile-first AI-powered development environment** that transforms your basic MCP server into a comprehensive coding platform like same.new and manus.im.
+**منصة الذكاء الاصطناعي الشاملة مع نظام إدارة الوكلاء المتقدم**
 
-## ✨ Features
+## 🌟 الميزات الأساسية
 
-### 🧠 **AI Agent Core**
-- **Language-aware models**: Python → GPT-4, JS/TS → GPT-4o, HTML/CSS → Gemini Vision, Bash → Claude-3
-- **Contextual understanding**: Knows current file, language, cursor position, and previous interactions
-- **Slash commands**: `/explain`, `/refactor`, `/test`, `/fix`, `/optimize`, `/document`
-- **Persistent session memory**: Remembers conversations and follows up intelligently
+### 🤖 نظام إدارة الوكلاء المتقدم
+- **6 أنواع متخصصة من الوكلاء**: مطور البرمجيات، محلل البيانات، مصمم UI/UX، مهندس DevOps، خبير الأمان، كاتب التوثيق
+- **اختيار تلقائي للوكيل**: اقتراح الوكيل الأنسب حسب السياق والمهمة
+- **تبديل ديناميكي**: إمكانية تغيير الوكيل النشط حسب الحاجة
+- **ذاكرة محادثات**: حفظ واسترجاع تاريخ المحادثات لكل وكيل
+- **إحصائيات الاستخدام**: تتبع أداء وإحصائيات كل وكيل
 
-### 🔍 **Semantic Search Engine**
-- **Transformers.js powered**: Uses `all-MiniLM-L6-v2` for in-browser embeddings
-- **Natural language queries**: "Find all API calls", "Where is login implemented?"
-- **Cosine similarity**: Accurate semantic matching with ranked results
-- **Live indexing**: Auto-updates as you edit files
-- **Ctrl+K global search**: Instant access anywhere
+### 🔄 نظام API موحد للذكاء الاصطناعي
+- **دعم متعدد المقدمين**: OpenAI، Anthropic، Google AI، Mistral، Cohere
+- **إدارة معدل الطلبات**: تحكم تلقائي في معدل استهلاك API
+- **اختيار النموذج الأمثل**: اختيار أفضل نموذج للمهمة حسب القدرات والتكلفة
+- **إعادة المحاولة الذكية**: نظام إعادة المحاولة للأخطاء المؤقتة
+- **تتبع الأداء**: مراقبة استجابة ودقة النماذج المختلفة
 
-### 🖼️ **Media Intelligence**
-- **Drag-and-drop OCR**: Upload screenshots, whiteboards, sketches
-- **Tesseract.js integration**: Extract code/text from images
-- **AI code generation**: Convert extracted content to working code
-- **Bug fixing**: Analyze and fix issues in extracted code
-- **Multiple formats**: JPEG, PNG, GIF, BMP, WebP support
+### 🛠️ نظام الأدوات المتقدم
+- **تحليل الكود**: تحليل التعقيد والجودة والأمان
+- **إعادة الهيكلة**: تحسين وتنظيف الكود تلقائياً
+- **إصلاح الأخطاء**: اكتشاف وإصلاح الأخطاء البرمجية
+- **إنشاء الاختبارات**: توليد اختبارات شاملة للكود
+- **أدوات التصميم**: تحليل واقتراح تحسينات UI/UX
+- **فحص الأمان**: اكتشاف الثغرات والمشاكل الأمنية
 
-### 📱 **Mobile-First Design**
-- **360px+ responsive**: Fully optimized for small screens
-- **Touch gestures**: Swipe to navigate, pull to refresh
-- **Compressed UI**: h1 max 20px, body 14px, icons 16-20px
-- **Smart scaling**: Images and logos scale proportionally
-- **No horizontal scroll**: Vertical stacking on narrow screens
+### 📊 لوحة التحكم الإدارية
+- **مراقبة مباشرة**: إحصائيات الأداء والاستخدام في الوقت الفعلي
+- **إدارة الوكلاء**: تفعيل وتكوين الوكلاء المختلفة
+- **مراقبة API**: حالة الاتصال وإحصائيات الاستخدام
+- **سجل النظام**: متابعة أحداث وأخطاء النظام
+- **تصدير البيانات**: حفظ التقارير والإحصائيات
 
-### 🧩 **Editor Integration**
-- **Monaco + Yjs**: Collaborative editing with conflict resolution
-- **AI completions**: Context-aware code suggestions
-- **Symbol navigation**: Jump-to-definition with AI help
-- **Error analysis**: AI-powered bug detection and fixes
-- **Language detection**: Auto-detect and adapt behavior
+### 📱 تصميم متجاوب ومحسن للهواتف
+- **Mobile-First**: تصميم مُحسن للشاشات من 360px
+- **إيماءات اللمس**: swipe navigation وpull-to-refresh
+- **لوحة مفاتيح ذكية**: تكيف تلقائي مع layout المحتوى
+- **أزرار لمس محسنة**: حد أدنى 44px للاستخدام المريح
 
-### 🗂️ **File & Dependency Management**
-- **Virtual file system**: In-memory file management
-- **Import/export tracking**: Understand code relationships
-- **Project structure**: Visualize dependencies and usage
-- **Auto-save**: 5-second intervals with offline support
+### 🔍 البحث الدلالي المتقدم
+- **Transformers.js**: معالجة محلية باستخدام all-MiniLM-L6-v2
+- **استعلام طبيعي**: بحث بالغة الطبيعية
+- **cosine similarity**: نتائج دقيقة ومرتبة
 
-### 🧪 **Terminal Integration**
-- **xterm.js powered**: Full terminal emulation
-- **Mobile toolbar**: Quick access to common commands
-- **Command history**: Navigate previous commands
-- **File operations**: `ls`, `cat`, `mkdir`, `touch`, etc.
-- **Runtime simulation**: Python, Node.js, npm execution
+### 🖼️ ذكاء الوسائط
+- **OCR متقدم**: Tesseract.js لاستخراج النصوص
+- **تحويل الصور للكود**: تحليل وتوليد كود من الصور
+- **دعم متعدد الصيغ**: PNG, JPG, PDF
 
-## 📦 Quick Start
+### 💻 محرر متقدم
+- **Monaco Editor**: نفس محرر VS Code
+- **تعاون مباشر**: Yjs للتعديل المتزامن
+- **إكمال ذكي**: اقتراحات كود بالذكاء الاصطناعي
+- **تنقل رموز**: jump-to-definition ومعاينة
 
-### 1. **Deploy to Cloudflare**
+### 🖥️ محطة طرفية متكاملة
+- **xterm.js**: محاكي طرفية كامل
+- **أدوات الهواتف**: شريط أدوات محسن للمس
+- **محاكاة أوامر**: تنفيذ الأوامر الأساسية
+- **حفظ التاريخ**: استرجاع الأوامر السابقة
 
-[![Deploy to Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/your-repo/boltdiy)
+## 🏗️ الهيكل التقني
 
-Or manually:
-```bash
-npm create cloudflare@latest -- my-ai-agent --template=this-repo
-cd my-ai-agent
-npm install
-wrangler deploy
+### الملفات الأساسية
+```
+public/
+├── index.html              # الصفحة الرئيسية
+├── js/
+│   ├── agent-manager.js    # نظام إدارة الوكلاء
+│   ├── unified-ai-api.js   # النظام الموحد للـ AI
+│   ├── agent-tools.js      # أدوات الوكلاء المتخصصة
+│   ├── admin-dashboard.js  # لوحة التحكم الإدارية
+│   ├── app.js             # الوظائف الأساسية
+│   ├── monaco-setup.js    # إعداد المحرر
+│   ├── semantic-search.js # البحث الدلالي
+│   ├── ai-agent.js        # الوكيل الذكي
+│   ├── ocr-handler.js     # معالج OCR
+│   ├── terminal.js        # المحطة الطرفية
+│   └── mobile-handlers.js # معالجات الهواتف
+└── src/
+    └── index.ts           # خادم MCP + APIs
 ```
 
-### 2. **Local Development**
+### أنواع الوكلاء المتاحة
+
+#### 1. 🔧 مطور البرمجيات (programmer)
+- **التخصص**: كتابة وتحليل وتحسين الكود
+- **النماذج المفضلة**: GPT-4o، Claude-3-Opus، Gemini-Pro
+- **الأدوات**: code_analysis، refactoring، debugging، testing
+- **اللغات**: JavaScript، Python، TypeScript، Java، C++
+
+#### 2. 📊 محلل البيانات (analyst)
+- **التخصص**: تحليل البيانات والإحصائيات
+- **النماذج المفضلة**: Claude-3-Opus، GPT-4، O1
+- **الأدوات**: data_analysis، visualization، statistics
+- **اللغات**: Python، R، SQL
+
+#### 3. 🎨 مصمم UI/UX (designer)
+- **التخصص**: تصميم واجهات المستخدم
+- **النماذج المفضلة**: Gemini-Pro-Vision، GPT-4o، Claude-3-Sonnet
+- **الأدوات**: ui_design، color_analysis، layout_optimization
+- **اللغات**: HTML، CSS، SCSS
+
+#### 4. ⚙️ مهندس DevOps (devops)
+- **التخصص**: النشر والبنية التحتية
+- **النماذج المفضلة**: Claude-3-Haiku، GPT-4-Turbo، Mistral-Large
+- **الأدوات**: deployment، monitoring، automation
+- **اللغات**: Bash، YAML، Docker
+
+#### 5. 🔒 خبير الأمان (security)
+- **التخصص**: أمان التطبيقات والشبكات
+- **النماذج المفضلة**: Claude-3-Opus، GPT-4، O1
+- **الأدوات**: security_audit، vulnerability_scan، penetration_test
+- **اللغات**: Python، Bash، JavaScript
+
+#### 6. 📝 كاتب التوثيق (documenter)
+- **التخصص**: كتابة الوثائق التقنية
+- **النماذج المفضلة**: GPT-4، Claude-3-Sonnet، Command-R-Plus
+- **الأدوات**: documentation، api_docs، tutorials
+- **اللغات**: Markdown، reStructuredText، HTML
+
+## 🚀 التثبيت والإعداد
+
+### المتطلبات
+- Node.js 18+
+- npm أو yarn
+- مفاتيح API للذكاء الاصطناعي (اختياري)
+
+### خطوات التثبيت
+
+1. **استنساخ المشروع**
 ```bash
-git clone <this-repo>
-cd boltdiy
+git clone <repository-url>
+cd boltdiy-agent-platform
+```
+
+2. **تثبيت التبعيات**
+```bash
 npm install
+```
+
+3. **تشغيل الخادم**
+```bash
 npm run dev
-# Visit http://localhost:8787
 ```
 
-### 3. **Mobile Testing**
-- Open on mobile device (360px+ width)
-- Try swipe gestures and touch interactions
-- Test OCR with code screenshots
-- Use voice input for AI agent
+4. **فتح التطبيق**
+   - افتح المتصفح على `http://localhost:8787`
 
-## 🎯 Usage Guide
+### ⚙️ تكوين مفاتيح API
 
-### **AI Agent Commands**
-```bash
-/explain      # Explain selected code
-/refactor     # Improve code structure  
-/test         # Generate unit tests
-/fix          # Debug and fix issues
-/optimize     # Performance improvements
-/document     # Generate documentation
+1. **فتح لوحة التحكم الإدارية**
+   - `Ctrl+Shift+D` أو النقر على أيقونة التحكم
+
+2. **إضافة مفاتيح API**
+   - انتقل إلى قسم "إعدادات API"
+   - أضف مفاتيح المقدمين المرغوبين:
+     - OpenAI: `sk-...`
+     - Anthropic: `sk-ant-...`
+     - Google AI: `AIza...`
+     - Mistral: `...`
+     - Cohere: `...`
+
+3. **اختبار الاتصال**
+   - استخدم أزرار "اختبار" للتحقق من صحة المفاتيح
+
+## 📖 دليل الاستخدام
+
+### البدء السريع
+
+1. **اختيار الوكيل المناسب**
+   - سيتم اقتراح الوكيل المناسب تلقائياً
+   - أو اختر من قائمة الوكلاء المتاحة
+
+2. **إدخال المهمة**
+   - اكتب طلبك في حقل النص
+   - أو استخدم الأزرار السريعة (تحليل، تحسين، إصلاح...)
+
+3. **مراجعة النتائج**
+   - ستظهر النتائج في المحرر أو في نافذة منفصلة
+   - يمكن حفظ أو تصدير النتائج
+
+### الميزات المتقدمة
+
+#### استخدام البحث الدلالي
+```
+/search: "أسئلة حول React hooks"
 ```
 
-### **Search & Navigation**
-- `Ctrl+K` - Global semantic search
-- `Ctrl+\`` - Toggle terminal
-- `Ctrl+Shift+I` - Open OCR modal
-- Swipe right from edge - Open sidebar (mobile)
-- Swipe left - Close sidebar (mobile)
+#### إدارة الملفات
+- **سحب وإفلات**: اسحب الملفات للمحرر
+- **التصفح**: استخدم شجرة الملفات
+- **الحفظ التلقائي**: يحفظ تلقائياً كل 30 ثانية
 
-### **File Operations**
-```bash
-# Terminal commands
-ls                 # List files
-cat filename       # Read file
-touch newfile.js   # Create file
-python script.py   # Execute Python
-node app.js        # Execute Node.js
-```
+#### الأوامر المخصصة
+- `/explain`: شرح الكود المحدد
+- `/refactor`: إعادة هيكلة الكود
+- `/test`: إنشاء اختبارات
+- `/fix`: إصلاح الأخطاء
+- `/optimize`: تحسين الأداء
 
-### **Mobile Gestures**
-- **Swipe right** from left edge → Open sidebar
-- **Swipe left** anywhere → Close sidebar  
-- **Pull down** at top → Refresh files
-- **Long press** on code → Context menu
-- **Double tap** → Zoom (disabled to prevent conflicts)
+### استخدام لوحة التحكم الإدارية
 
-## 🔧 Configuration
+#### فتح اللوحة
+- **اختصار لوحة المفاتيح**: `Ctrl+Shift+D`
+- **زر الوصول السريع**: الأيقونة البنفسجية في الأسفل
 
-### **API Keys Setup**
-1. Open Settings (⚙️ button)
-2. Add your API keys:
-   - OpenAI: `sk-...`
-   - Anthropic: `sk-ant-...`
-   - Google AI: `AI...`
+#### المراقبة والإحصائيات
+- **الوكلاء النشطون**: عدد وحالة الوكلاء
+- **طلبات API**: إحصائيات الاستخدام اليومية
+- **وقت الاستجابة**: متوسط أداء النماذج
+- **استهلاك التوكنز**: تتبع التكاليف
 
-### **Language Model Mapping**
+#### إدارة الوكلاء
+- **تفعيل/إلغاء**: تبديل الوكلاء المختلفة
+- **تكوين**: ضبط إعدادات كل وكيل
+- **الإحصائيات**: عرض أداء واستخدام كل وكيل
+
+#### تصدير البيانات
+- **التقارير**: تصدير إحصائيات شاملة
+- **النسخ الاحتياطية**: حفظ إعدادات الوكلاء
+- **السجلات**: تصدير سجل الأحداث
+
+## 🎯 الاستخدامات العملية
+
+### للمطورين
+- **مراجعة الكود**: تحليل جودة وأمان الكود
+- **إصلاح الأخطاء**: اكتشاف وحل المشاكل البرمجية
+- **تحسين الأداء**: اقتراحات للتحسين والتطوير
+- **إنشاء الاختبارات**: توليد اختبارات شاملة
+
+### لمصممي UI/UX
+- **مراجعة التصميم**: تحليل تجربة المستخدم
+- **اقتراح ألوان**: توصيات للوحة الألوان
+- **تحسين التجاوب**: ضمان التوافق مع الأجهزة
+
+### لمحللي البيانات
+- **تحليل البيانات**: استخراج الرؤى والاتجاهات
+- **التصور**: إنشاء مخططات ورسوم بيانية
+- **التقارير**: إنتاج تقارير مفصلة
+
+### لمهندسي DevOps
+- **أتمتة النشر**: إعداد pipelines
+- **مراقبة النظام**: تتبع الأداء والصحة
+- **إدارة الحاويات**: تكوين Docker وKubernetes
+
+## 🔧 التخصيص والتطوير
+
+### إضافة وكيل جديد
+
+1. **تعريف الوكيل**
 ```javascript
-{
-  "python": "gpt-4",
-  "javascript": "gpt-4o", 
-  "typescript": "gpt-4o",
-  "html": "gemini-vision",
-  "css": "gemini-vision",
-  "bash": "claude-3",
-  "sql": "claude-3"
+const customAgent = {
+    name: 'اسم الوكيل',
+    description: 'وصف التخصص',
+    preferredModels: ['gpt-4o', 'claude-3-sonnet'],
+    tools: ['tool1', 'tool2'],
+    languages: ['python', 'javascript'],
+    prompts: {
+        system: 'نص النظام...',
+        context: 'سياق إضافي...'
+    }
+};
+```
+
+2. **إضافة للنظام**
+```javascript
+agentManager.agentTypes.customAgent = customAgent;
+await agentManager.initializeAllAgents();
+```
+
+### إنشاء أداة مخصصة
+
+```javascript
+class CustomTool extends BaseTool {
+    constructor(agent) {
+        super('custom_tool', agent);
+    }
+
+    async execute(context) {
+        // منطق الأداة
+        return {
+            type: 'custom',
+            result: 'نتيجة العملية',
+            timestamp: Date.now()
+        };
+    }
 }
 ```
 
-### **Mobile Optimizations**
-- Auto-hide line numbers on mobile
-- Disable minimap on small screens
-- Touch-friendly scrollbars
-- Keyboard-aware layout adjustments
+### تخصيص واجهة المستخدم
 
-## 🏗️ Architecture
-
-### **Frontend Stack**
-- **TailwindCSS**: Mobile-first responsive design
-- **Monaco Editor**: VS Code-quality editing
-- **Transformers.js**: Client-side AI embeddings
-- **Tesseract.js**: OCR processing
-- **xterm.js**: Terminal emulation
-- **Yjs**: Collaborative editing
-
-### **Backend Integration**
-- **Cloudflare Workers**: Edge computing
-- **MCP Protocol**: Tool integration
-- **Durable Objects**: Session persistence
-- **R2 Storage**: File uploads (optional)
-
-### **File Structure**
-```
-├── src/
-│   └── index.ts          # MCP server + static serving
-├── public/
-│   ├── index.html        # Main UI
-│   └── js/
-│       ├── app.js        # Core application
-│       ├── monaco-setup.js    # Editor integration
-│       ├── semantic-search.js # AI search
-│       ├── ai-agent.js   # AI core
-│       ├── ocr-handler.js     # Image processing
-│       ├── terminal.js   # Terminal emulation
-│       └── mobile-handlers.js # Mobile optimizations
-├── package.json
-├── wrangler.jsonc
-└── README.md
+#### إضافة أزرار مخصصة
+```javascript
+const customButton = document.createElement('button');
+customButton.className = 'custom-btn';
+customButton.onclick = () => executeCustomAction();
+toolbar.appendChild(customButton);
 ```
 
-## 🌐 Deployment Options
+#### تعديل الألوان والستايل
+```css
+:root {
+    --primary-color: #your-color;
+    --secondary-color: #your-secondary;
+}
+```
 
-### **Cloudflare Pages** (Recommended)
-- Automatic builds from Git
-- Global CDN distribution
-- Mobile-optimized edge caching
+## 📱 الاستخدام على الهواتف
 
-### **Vercel/Netlify**
-- Easy GitHub integration
-- Serverless functions support
-- Custom domains
+### الإيماءات المدعومة
+- **Swipe Right**: فتح الشريط الجانبي
+- **Swipe Left**: إغلاق الشريط الجانبي  
+- **Pull Down**: تحديث المحتوى
+- **Double Tap**: تكبير/تصغير المحرر
+- **Long Press**: قائمة السياق
 
-### **Self-hosted**
-- Docker container available
-- Kubernetes deployment ready
-- Full control over infrastructure
+### التحسينات المتخصصة
+- **أزرار كبيرة**: حد أدنى 44px للمس السهل
+- **نصوص مقروءة**: حجم خط مناسب (14px+)
+- **تباعد مريح**: margins وpaddings محسنة
+- **تنقل سلس**: انتقالات محسنة
 
-## 🔒 Security & Privacy
+### إعدادات الهواتف
+- **تدوير الشاشة**: دعم كامل للاتجاهين
+- **لوحة المفاتيح**: تكيف تلقائي مع المحتوى
+- **الإشعارات**: دعم Progressive Web App
 
-- **Client-side AI**: Embeddings generated locally
-- **API key encryption**: Stored in localStorage (encrypted)
-- **No data collection**: Files stay in your browser
-- **CORS enabled**: Safe cross-origin requests
-- **CSP headers**: Content Security Policy protection
+## 🔍 استكشاف الأخطاء
 
-## 🎨 Customization
+### المشاكل الشائعة
 
-### **Themes**
-- Default: Dark theme optimized for mobile
-- Custom CSS variables for theming
-- Monaco editor theme syncing
+#### لا يعمل الوكيل
+- تحقق من وجود مفتاح API صحيح
+- راجع سجل النظام في لوحة التحكم
+- تأكد من الاتصال بالإنترنت
 
-### **Extensions**
-- Plugin system for custom tools
-- Language server integration
-- Custom AI model endpoints
+#### بطء في الاستجابة
+- تحقق من حالة الخادم في لوحة التحكم
+- قد يكون هناك حد معدل للـ API
+- جرب نموذج أسرع (Haiku بدلاً من Opus)
 
-## 📈 Performance
+#### مشاكل في المحرر
+- امسح الكاش: `Ctrl+Shift+Delete`
+- أعد تحميل الصفحة: `F5`
+- تحقق من دعم المتصفح لـ Monaco
 
-### **Mobile Optimizations**
-- Lazy loading of heavy dependencies
-- Quantized ML models for mobile
-- Service worker caching
-- Progressive Web App features
+#### أخطاء في OCR
+- تأكد من وضوح الصورة
+- استخدم صيغة مدعومة (PNG, JPG)
+- حجم الملف أقل من 10MB
 
-### **Benchmarks**
-- **First load**: <3s on 3G
-- **File operations**: <100ms
-- **AI responses**: 1-3s depending on model
-- **Search**: <200ms for 1000+ files
+### تشخيص متقدم
 
-## 🤝 Contributing
+#### فحص الكونسول
+```javascript
+// تشغيل في Developer Tools
+console.log('Agent Manager:', window.agentManager);
+console.log('Unified AI:', window.unifiedAI);
+console.log('Current Context:', app.getCurrentContext());
+```
 
-1. Fork the repository
-2. Create feature branch: `git checkout -b feature/amazing-feature`
-3. Test on mobile devices (360px+ width)
-4. Ensure responsive design principles
-5. Submit pull request
+#### تصدير السجلات
+```javascript
+// تصدير سجل مفصل للتشخيص
+adminDashboard.exportData();
+```
 
-## 📄 License
+## 🔒 الأمان والخصوصية
 
-MIT License - see [LICENSE](LICENSE) file
+### حماية البيانات
+- **تخزين محلي**: جميع البيانات محفوظة محلياً
+- **عدم إرسال**: لا يتم إرسال مفاتيح API لخوادم خارجية
+- **تشفير**: البيانات الحساسة مشفرة في التخزين
 
-## 🙏 Credits
+### أفضل الممارسات
+- **مفاتيح منفصلة**: استخدم مفاتيح مخصصة للتطوير
+- **حدود الاستخدام**: ضع حدود للاستهلاك
+- **مراجعة دورية**: راجع استخدام المفاتيح بانتظام
 
-- **Monaco Editor**: Microsoft
-- **Transformers.js**: Hugging Face
-- **Tesseract.js**: Naptha
-- **TailwindCSS**: Tailwind Labs
-- **MCP Protocol**: Anthropic
+### إعدادات الأمان
+```javascript
+// تفعيل الوضع الآمن
+window.secureMode = true;
+
+// تحديد حد أقصى للطلبات
+unifiedAI.setRateLimit('openai', { requests: 30, window: 60000 });
+```
+
+## 📊 مراقبة الأداء
+
+### المؤشرات الأساسية
+- **وقت الاستجابة**: متوسط زمن الرد من النماذج
+- **معدل النجاح**: نسبة الطلبات الناجحة
+- **استهلاك التوكنز**: تتبع التكاليف
+- **رضا المستخدم**: تقييم جودة النتائج
+
+### التحسين المستمر
+- **تعلم تفضيلات**: النظام يتعلم من الاختيارات
+- **تحسين النماذج**: اختيار أفضل نموذج للمهمة
+- **ذاكرة السياق**: تحسين النتائج بناءً على التاريخ
+
+## 🛣️ خريطة الطريق
+
+### المزايا القادمة
+- [ ] **وكلاء مخصصة**: إنشاء وكلاء بمواصفات خاصة
+- [ ] **تعاون جماعي**: مشاركة المشاريع مع الفريق
+- [ ] **قوالب جاهزة**: مكتبة من القوالب للمشاريع
+- [ ] **تكامل Git**: ربط مباشر مع المستودعات
+- [ ] **ملحقات**: نظام إضافات قابل للتوسع
+
+### التحسينات المخطط لها
+- [ ] **أداء محسن**: تحسين سرعة التحميل والاستجابة
+- [ ] **دعم لغات أكثر**: إضافة المزيد من لغات البرمجة
+- [ ] **ذكاء محسن**: تحسين دقة اقتراحات الوكلاء
+- [ ] **واجهة محسنة**: تحديثات على التصميم والتجربة
+
+## 🤝 المساهمة
+
+### كيفية المساهمة
+1. **Fork** المستودع
+2. إنشاء **branch** جديد (`git checkout -b feature/amazing-feature`)
+3. **Commit** التغييرات (`git commit -m 'Add amazing feature'`)
+4. **Push** للـ branch (`git push origin feature/amazing-feature`)
+5. فتح **Pull Request**
+
+### إرشادات المساهمة
+- **اتبع معايير الكود**: استخدم ESLint وPrettier
+- **أضف اختبارات**: للميزات الجديدة
+- **وثق التغييرات**: في README وkomments
+- **اختبر شامل**: على أجهزة مختلفة
+
+### تقرير الأخطاء
+- **استخدم القوالب**: المتوفرة في Issues
+- **أضف تفاصيل**: خطوات إعادة الإنتاج
+- **ادرج السجلات**: من Developer Tools
+- **صف البيئة**: نظام التشغيل والمتصفح
+
+## 📄 الترخيص
+
+هذا المشروع مرخص تحت رخصة MIT - راجع ملف [LICENSE](LICENSE) للتفاصيل.
+
+## 🙏 الشكر والتقدير
+
+- **OpenAI** - نماذج GPT الرائعة
+- **Anthropic** - نماذج Claude المتميزة  
+- **Google** - Gemini وأدوات التطوير
+- **Microsoft** - Monaco Editor
+- **TailwindCSS** - إطار العمل للتصميم
+- **Transformers.js** - معالجة محلية للنصوص
 
 ---
 
-**Transform your development workflow with AI-powered mobile-first coding! 🚀📱**
+**Built with ❤️ for developers by developers**
+
+للدعم والأسئلة: [إنشاء Issue جديد](../../issues/new)

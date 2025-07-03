@@ -2,7 +2,8 @@
 
 # Single Page Application - تطبيق صفحة واحدة
 # Redirect all routes to index.html for SPA routing
-/* /index.html 200
+/*    /index.html   200
+/     /index.html   200
 
 # Legacy redirects - توجيهات قديمة
 /dashboard /index.html 200

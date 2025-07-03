@@ -46,6 +46,14 @@
   Cache-Control: public, max-age=0, must-revalidate
 
 # HTML files - ملفات HTML
+/
+  Content-Type: text/html; charset=utf-8
+  Cache-Control: no-cache
+
+/index.html
+  Content-Type: text/html; charset=utf-8
+  Cache-Control: no-cache
+
 *.html
   Content-Type: text/html; charset=utf-8
   Cache-Control: public, max-age=3600

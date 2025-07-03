@@ -5,7 +5,7 @@
     "nodejs_compat"
   ],
   "build": {
-    "command": "Remix",
+    "command": "pnpm run build",
     "destination": "build/client"
   },
   "preview": {

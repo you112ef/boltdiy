@@ -3,7 +3,6 @@ import {
   cloudflareDevProxyVitePlugin as remixCloudflareDevProxy,
 } from "@remix-run/dev";
 import { defineConfig } from "vite";
-import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
   plugins: [
@@ -15,11 +14,15 @@ export default defineConfig({
         v3_throwAbortReason: true,
       },
     }),
-    tsconfigPaths(),
   ],
   resolve: {
     alias: {
       "~": new URL("./app", import.meta.url).pathname,
+    },
+  },
+  ssr: {
+    resolve: {
+      conditions: ["workerd", "worker", "browser"],
     },
   },
 });

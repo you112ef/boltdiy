@@ -5,8 +5,8 @@
     "nodejs_compat"
   ],
   "build": {
-    "command": "npm run build",
-    "destination": "public"
+    "command": "npm install pnpm && pnpm install && pnpm run build",
+    "destination": "build/client"
   },
   "preview": {
     "command": "npm run preview"

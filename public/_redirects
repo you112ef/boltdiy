@@ -1,9 +1,5 @@
 # Redirects for Cloudflare Pages - إعدادات التوجيه
 
-# API Routes - توجيه API
-/api/* /api/:splat 200
-/mcp/* /mcp/:splat 200
-
 # Single Page Application - تطبيق صفحة واحدة
 # Redirect all routes to index.html for SPA routing
 /* /index.html 200

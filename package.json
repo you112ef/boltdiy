@@ -2,6 +2,7 @@
 	"name": "boltdiy",
 	"version": "0.0.0",
 	"private": true,
+	"packageManager": "pnpm@8.15.0",
 	"scripts": {
 		"deploy": "wrangler deploy",
 		"dev": "wrangler dev",
@@ -10,14 +11,14 @@
 		"start": "wrangler dev",
 		"cf-typegen": "wrangler types",
 		"type-check": "tsc --noEmit",
-		"build": "npm run build:copy && npm run build:optimize",
-		"build:copy": "echo 'Static files already in public directory'",
-		"build:optimize": "npm run build:minify || echo 'Minification skipped'",
-		"build:minify": "node scripts/minify.js || echo 'Minify script not found'",
-		"preview": "npm run dev",
-		"pages:dev": "wrangler pages dev public",
-		"pages:deploy": "wrangler pages deploy public --project-name boltdiy-agent-platform",
-		"pages:build": "npm run build && npm run pages:deploy"
+		"build": "npm run build:clean && npm run build:copy && npm run build:finalize",
+		"build:clean": "rm -rf build/client && mkdir -p build/client",
+		"build:copy": "cp -r public/* build/client/",
+		"build:finalize": "echo 'Build completed successfully in build/client'",
+		"preview": "pnpm run dev",
+		"pages:dev": "wrangler pages dev build/client",
+		"pages:deploy": "wrangler pages deploy build/client --project-name boltdiy-agent-platform",
+		"pages:build": "pnpm run build && pnpm run pages:deploy"
 	},
 	"dependencies": {
 		"@modelcontextprotocol/sdk": "^1.12.1",

@@ -1,445 +1,422 @@
-// OCR Handler using Tesseract.js for Image-to-Code
+// OCR Handler for BoltDIY Platform
+// Enhanced version with AI analysis
+
 class OCRHandler {
     constructor() {
         this.isInitialized = false;
-        this.isProcessing = false;
-        this.worker = null;
-        this.supportedFormats = ['image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/webp'];
-        this.init();
+        this.currentImage = null;
+        this.results = null;
+        this.supportedFormats = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
     }
 
-    async init() {
-        try {
-            this.setupEventListeners();
-            this.setupDragAndDrop();
-            this.isInitialized = true;
-        } catch (error) {
-            console.error('OCR initialization failed:', error);
-        }
+    initialize() {
+        console.log('🔍 Initializing OCR Handler...');
+        this.setupDropZone();
+        this.setupImageInput();
+        this.isInitialized = true;
+        console.log('✅ OCR Handler initialized');
     }
 
-    setupEventListeners() {
-        // OCR modal triggers
-        document.addEventListener('keydown', (e) => {
-            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'I') {
-                e.preventDefault();
-                this.openOCRModal();
-            }
-        });
-
-        // Image input
-        const imageInput = document.getElementById('image-input');
-        if (imageInput) {
-            imageInput.addEventListener('change', this.handleFileSelect.bind(this));
-        }
-
-        // Drop zone click
-        const dropZone = document.getElementById('drop-zone');
-        if (dropZone) {
-            dropZone.addEventListener('click', () => {
-                document.getElementById('image-input')?.click();
-            });
-        }
-
-        // OCR result buttons
-        this.setupResultButtons();
-    }
-
-    setupResultButtons() {
-        document.addEventListener('click', (e) => {
-            const target = e.target;
-            if (!target.matches('button')) return;
-
-            const ocrResult = document.getElementById('ocr-result');
-            if (!ocrResult || ocrResult.classList.contains('hidden')) return;
-
-            if (target.textContent === 'Create File') {
-                this.createFileFromOCR();
-            } else if (target.textContent === 'Generate Code') {
-                this.generateCodeFromOCR();
-            } else if (target.textContent === 'Fix Bugs') {
-                this.fixBugsFromOCR();
-            }
-        });
-    }
-
-    setupDragAndDrop() {
+    setupDropZone() {
         const dropZone = document.getElementById('drop-zone');
         if (!dropZone) return;
 
-        // Prevent default drag behaviors
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, this.preventDefaults, false);
-            document.body.addEventListener(eventName, this.preventDefaults, false);
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('border-blue-500', 'bg-blue-50');
         });
 
-        // Highlight drop zone when item is dragged over it
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, () => {
-                dropZone.classList.add('border-blue-500', 'bg-blue-900', 'bg-opacity-20');
-            }, false);
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('border-blue-500', 'bg-blue-50');
         });
 
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, () => {
-                dropZone.classList.remove('border-blue-500', 'bg-blue-900', 'bg-opacity-20');
-            }, false);
-        });
-
-        // Handle dropped files
-        dropZone.addEventListener('drop', this.handleDrop.bind(this), false);
-    }
-
-    preventDefaults(e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
-
-    async handleDrop(e) {
-        const dt = e.dataTransfer;
-        const files = dt.files;
-        
-        if (files.length > 0) {
-            await this.processFile(files[0]);
-        }
-    }
-
-    async handleFileSelect(e) {
-        const files = e.target.files;
-        if (files.length > 0) {
-            await this.processFile(files[0]);
-        }
-    }
-
-    openOCRModal() {
-        document.getElementById('ocr-modal')?.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    }
-
-    closeOCRModal() {
-        document.getElementById('ocr-modal')?.classList.add('hidden');
-        document.body.style.overflow = '';
-        this.resetOCRModal();
-    }
-
-    resetOCRModal() {
-        const ocrResult = document.getElementById('ocr-result');
-        const dropZone = document.getElementById('drop-zone');
-        
-        if (ocrResult) {
-            ocrResult.classList.add('hidden');
-        }
-        
-        if (dropZone) {
-            dropZone.classList.remove('border-blue-500', 'bg-blue-900', 'bg-opacity-20');
-        }
-        
-        // Reset file input
-        const imageInput = document.getElementById('image-input');
-        if (imageInput) {
-            imageInput.value = '';
-        }
-    }
-
-    async processFile(file) {
-        if (!this.isValidImageFile(file)) {
-            this.showError('Please select a valid image file (JPEG, PNG, GIF, BMP, WebP)');
-            return;
-        }
-
-        if (file.size > 10 * 1024 * 1024) { // 10MB limit
-            this.showError('File size too large. Please select an image under 10MB.');
-            return;
-        }
-
-        this.isProcessing = true;
-        this.showProcessingState();
-
-        try {
-            const imageUrl = URL.createObjectURL(file);
-            const ocrText = await this.performOCR(imageUrl);
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('border-blue-500', 'bg-blue-50');
             
-            if (ocrText.trim()) {
-                this.showOCRResult(ocrText);
+            const files = Array.from(e.dataTransfer.files);
+            const imageFile = files.find(file => this.supportedFormats.includes(file.type));
+            
+            if (imageFile) {
+                this.processImage(imageFile);
             } else {
-                this.showError('No text detected in the image. Please try a clearer image.');
+                this.showError('Please drop a valid image file (JPEG, PNG, WebP, GIF)');
             }
-            
-            URL.revokeObjectURL(imageUrl);
-        } catch (error) {
-            console.error('OCR processing failed:', error);
-            this.showError('Failed to process image. Please try again.');
-        } finally {
-            this.isProcessing = false;
-            this.hideProcessingState();
+        });
+    }
+
+    setupImageInput() {
+        const imageInput = document.getElementById('image-input');
+        if (!imageInput) return;
+
+        imageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file && this.supportedFormats.includes(file.type)) {
+                this.processImage(file);
+            } else {
+                this.showError('Please select a valid image file');
+            }
+        });
+    }
+
+    async processImage(file) {
+        if (!file || !this.supportedFormats.includes(file.type)) {
+            this.showError('Unsupported file format');
+            return;
         }
-    }
 
-    isValidImageFile(file) {
-        return this.supportedFormats.includes(file.type);
-    }
+        this.showProcessing();
+        this.currentImage = file;
 
-    async performOCR(imageUrl) {
         try {
-            // Initialize Tesseract worker if not already done
-            if (!this.worker) {
-                this.worker = await Tesseract.createWorker('eng', 1, {
-                    logger: (m) => {
-                        if (m.status === 'recognizing text') {
-                            this.updateProgress(m.progress);
-                        }
-                    }
-                });
-            }
-
-            const { data: { text } } = await this.worker.recognize(imageUrl);
-            return text;
+            // Show image preview
+            await this.showImagePreview(file);
+            
+            // Process with Tesseract.js
+            const text = await this.extractText(file);
+            
+            // Analyze with AI if enabled
+            const analysis = await this.analyzeWithAI(text, file.name);
+            
+            // Display results
+            this.displayResults(text, analysis);
+            
         } catch (error) {
-            console.error('Tesseract OCR failed:', error);
-            throw new Error('OCR processing failed');
+            console.error('OCR Error:', error);
+            this.showError(`OCR failed: ${error.message}`);
         }
     }
 
-    showProcessingState() {
-        const dropZone = document.getElementById('drop-zone');
-        if (dropZone) {
-            dropZone.innerHTML = `
-                <div class="text-center">
-                    <i class="fas fa-spinner fa-spin text-4xl text-blue-400 mb-4"></i>
-                    <p class="text-sm text-gray-400 mb-2">Processing image...</p>
-                    <div class="w-full bg-gray-600 rounded-full h-2">
-                        <div id="ocr-progress" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+    async showImagePreview(file) {
+        const previewContainer = document.getElementById('image-preview');
+        if (!previewContainer) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewContainer.innerHTML = `
+                <div class="relative">
+                    <img src="${e.target.result}" alt="Preview" class="max-w-full max-h-64 rounded border">
+                    <div class="absolute top-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs">
+                        ${(file.size / 1024).toFixed(1)} KB
                     </div>
-                    <p id="ocr-status" class="text-xs text-gray-500 mt-2">Initializing OCR...</p>
                 </div>
             `;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    async extractText(file) {
+        if (!window.Tesseract) {
+            throw new Error('Tesseract.js not loaded');
+        }
+
+        const progressElement = document.getElementById('ocr-progress');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+
+        return new Promise((resolve, reject) => {
+            window.Tesseract.recognize(file, 'eng+ara', {
+                logger: (m) => {
+                    if (m.status === 'recognizing text') {
+                        const progress = Math.round(m.progress * 100);
+                        if (progressBar) progressBar.style.width = `${progress}%`;
+                        if (progressText) progressText.textContent = `Processing... ${progress}%`;
+                    }
+                }
+            }).then(({ data: { text } }) => {
+                resolve(text);
+            }).catch(reject);
+        });
+    }
+
+    async analyzeWithAI(text, filename) {
+        if (!text.trim() || !window.aiAgent) {
+            return null;
+        }
+
+        try {
+            const prompt = `Analyze this extracted text from image "${filename}" and provide:
+1. Text type (code, document, form, etc.)
+2. Programming language (if code)
+3. Key insights or improvements
+4. Suggested next actions
+
+Text:
+${text}`;
+
+            const analysis = await window.aiAgent.processMessage(prompt);
+            return analysis;
+        } catch (error) {
+            console.warn('AI analysis failed:', error);
+            return null;
         }
     }
 
-    updateProgress(progress) {
-        const progressBar = document.getElementById('ocr-progress');
-        const statusText = document.getElementById('ocr-status');
-        
-        if (progressBar) {
-            progressBar.style.width = `${progress * 100}%`;
-        }
-        
-        if (statusText) {
-            statusText.textContent = `Recognizing text... ${Math.round(progress * 100)}%`;
-        }
+    displayResults(text, analysis) {
+        const resultsContainer = document.getElementById('ocr-results');
+        if (!resultsContainer) return;
+
+        this.results = { text, analysis };
+
+        // Detect if text looks like code
+        const isCode = this.detectCodeType(text);
+        const language = isCode ? this.detectProgrammingLanguage(text) : 'text';
+
+        resultsContainer.innerHTML = `
+            <div class="space-y-4">
+                <!-- Extracted Text -->
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-semibold text-gray-200">Extracted Text</h3>
+                        <div class="flex gap-2">
+                            <button onclick="ocrHandler.copyText()" 
+                                    class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors">
+                                <i class="fas fa-copy mr-1"></i> Copy
+                            </button>
+                            ${isCode ? `
+                                <button onclick="ocrHandler.createFileFromText()" 
+                                        class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs rounded transition-colors">
+                                    <i class="fas fa-file-code mr-1"></i> Create File
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <div class="bg-gray-800 rounded p-3 max-h-40 overflow-y-auto">
+                        <pre class="text-sm text-gray-300 whitespace-pre-wrap">${text}</pre>
+                    </div>
+                    ${isCode ? `<div class="text-xs text-blue-400 mt-1">Detected: ${language}</div>` : ''}
+                </div>
+
+                <!-- AI Analysis -->
+                ${analysis ? `
+                    <div>
+                        <h3 class="font-semibold text-gray-200 mb-2">AI Analysis</h3>
+                        <div class="bg-gray-800 rounded p-3">
+                            <div class="text-sm text-gray-300 whitespace-pre-wrap">${analysis}</div>
+                        </div>
+                    </div>
+                ` : ''}
+
+                <!-- Actions -->
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="ocrHandler.enhanceText()" 
+                            class="px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded transition-colors">
+                        <i class="fas fa-magic mr-1"></i> Enhance with AI
+                    </button>
+                    <button onclick="ocrHandler.translateText()" 
+                            class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded transition-colors">
+                        <i class="fas fa-language mr-1"></i> Translate
+                    </button>
+                    <button onclick="ocrHandler.processAnother()" 
+                            class="px-3 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm rounded transition-colors">
+                        <i class="fas fa-plus mr-1"></i> Process Another
+                    </button>
+                </div>
+            </div>
+        `;
+
+        this.hideProcessing();
     }
 
-    hideProcessingState() {
-        const dropZone = document.getElementById('drop-zone');
-        if (dropZone) {
-            dropZone.innerHTML = `
-                <i class="fas fa-upload text-4xl text-gray-400 mb-4"></i>
-                <p class="text-sm text-gray-400 mb-2">Drop screenshots, whiteboards, or sketches here</p>
-                <p class="text-xs text-gray-500">Or click to browse files</p>
-                <input id="image-input" type="file" accept="image/*" class="hidden">
-            `;
-            
-            // Re-attach file input listener
-            const imageInput = document.getElementById('image-input');
-            if (imageInput) {
-                imageInput.addEventListener('change', this.handleFileSelect.bind(this));
+    detectCodeType(text) {
+        const codeIndicators = [
+            /function\s*\w*\s*\(/i,
+            /class\s+\w+/i,
+            /import\s+.*from/i,
+            /\w+\s*=\s*\w+\(/i,
+            /<\w+.*>/,
+            /def\s+\w+\s*\(/i,
+            /\{\s*[\w\s:"',]+\}/,
+            /\$\w+/,
+            /console\.log/i,
+            /print\s*\(/i
+        ];
+
+        return codeIndicators.some(pattern => pattern.test(text));
+    }
+
+    detectProgrammingLanguage(text) {
+        const patterns = {
+            javascript: [/function\s*\w*\s*\(/, /console\.log/, /const\s+\w+/, /=>\s*{/],
+            python: [/def\s+\w+\s*\(/, /import\s+\w+/, /print\s*\(/, /if\s+__name__/],
+            html: [/<html/, /<div/, /<body/, /<head/],
+            css: [/\w+\s*{/, /color\s*:/, /margin\s*:/, /@media/],
+            java: [/public\s+class/, /public\s+static\s+void/, /System\.out/],
+            cpp: [/#include/, /int\s+main\s*\(/, /std::/],
+            sql: [/SELECT\s+/, /FROM\s+/, /WHERE\s+/, /INSERT\s+INTO/i]
+        };
+
+        for (const [lang, langPatterns] of Object.entries(patterns)) {
+            if (langPatterns.some(pattern => pattern.test(text))) {
+                return lang;
+            }
+        }
+
+        return 'text';
+    }
+
+    copyText() {
+        if (this.results?.text) {
+            navigator.clipboard.writeText(this.results.text);
+            if (window.app) {
+                window.app.showToast('Text copied to clipboard', 'success');
             }
         }
     }
 
-    showOCRResult(text) {
-        const ocrResult = document.getElementById('ocr-result');
-        const textarea = ocrResult?.querySelector('textarea');
+    async createFileFromText() {
+        if (!this.results?.text || !window.app) return;
+
+        const language = this.detectProgrammingLanguage(this.results.text);
+        const extension = this.getFileExtension(language);
+        const filename = prompt(`Enter filename (will be saved as .${extension}):`, `extracted-code.${extension}`);
         
-        if (ocrResult && textarea) {
-            textarea.value = text;
-            ocrResult.classList.remove('hidden');
-            
-            // Auto-scroll to result
-            ocrResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-    }
-
-    showError(message) {
-        if (window.app) {
-            window.app.showToast(message, 'error');
-        } else {
-            alert(message);
-        }
-    }
-
-    // Result action handlers
-    async createFileFromOCR() {
-        const textarea = document.querySelector('#ocr-result textarea');
-        if (!textarea || !textarea.value.trim()) return;
-
-        const content = textarea.value.trim();
-        const language = this.detectLanguageFromContent(content);
-        const extension = this.getExtensionForLanguage(language);
-        
-        const filename = prompt(`Enter filename for the extracted content:`, `extracted_code.${extension}`);
-        if (!filename) return;
-
-        // Create file in the app
-        if (window.app && window.app.fileSystem) {
+        if (filename) {
+            // Create file in app
             const fullPath = filename.includes('/') ? filename : `src/${filename}`;
+            
             window.app.fileSystem.set(fullPath, {
-                content: content,
+                content: this.results.text,
                 language: language
             });
             
             window.app.updateFileTree();
             window.app.openFile(fullPath);
             window.app.showToast(`Created file: ${filename}`, 'success');
-            this.closeOCRModal();
-        }
-    }
-
-    async generateCodeFromOCR() {
-        const textarea = document.querySelector('#ocr-result textarea');
-        if (!textarea || !textarea.value.trim()) return;
-
-        const content = textarea.value.trim();
-        
-        if (window.aiAgent) {
-            window.app?.showToast('Generating code from OCR text...', 'info');
             
-            try {
-                const prompt = `Convert this extracted text/pseudocode into working code:
-
-${content}
-
-Generate clean, working code with proper syntax and structure. Infer the programming language from the content.`;
-                
-                const response = await window.aiAgent.callAIModel('gpt-4o', prompt);
-                
-                // Create a new file with the generated code
-                const language = this.detectLanguageFromContent(response);
-                const extension = this.getExtensionForLanguage(language);
-                const filename = `generated_code.${extension}`;
-                
-                if (window.app && window.app.fileSystem) {
-                    window.app.fileSystem.set(`src/${filename}`, {
-                        content: response,
-                        language: language
-                    });
-                    
-                    window.app.updateFileTree();
-                    window.app.openFile(`src/${filename}`);
-                    window.app.showToast('Generated code from OCR!', 'success');
-                    this.closeOCRModal();
-                }
-            } catch (error) {
-                window.app?.showToast('Failed to generate code', 'error');
-            }
+            // Close OCR modal
+            window.app.closeModal('ocr-modal');
         }
     }
 
-    async fixBugsFromOCR() {
-        const textarea = document.querySelector('#ocr-result textarea');
-        if (!textarea || !textarea.value.trim()) return;
-
-        const content = textarea.value.trim();
-        
-        if (window.aiAgent) {
-            window.app?.showToast('Analyzing and fixing code...', 'info');
-            
-            try {
-                const prompt = `Analyze this code for bugs and issues, then provide a fixed version:
-
-${content}
-
-Identify and fix:
-- Syntax errors
-- Logic errors
-- Best practice violations
-- Performance issues
-- Security vulnerabilities
-
-Provide the corrected code with explanations.`;
-                
-                const response = await window.aiAgent.callAIModel('gpt-4', prompt);
-                
-                // Create a new file with the fixed code
-                const language = this.detectLanguageFromContent(content);
-                const extension = this.getExtensionForLanguage(language);
-                const filename = `fixed_code.${extension}`;
-                
-                if (window.app && window.app.fileSystem) {
-                    window.app.fileSystem.set(`src/${filename}`, {
-                        content: response,
-                        language: language
-                    });
-                    
-                    window.app.updateFileTree();
-                    window.app.openFile(`src/${filename}`);
-                    window.app.showToast('Fixed code issues!', 'success');
-                    this.closeOCRModal();
-                }
-            } catch (error) {
-                window.app?.showToast('Failed to fix code', 'error');
-            }
-        }
-    }
-
-    detectLanguageFromContent(content) {
-        const contentLower = content.toLowerCase();
-        
-        // Check for language-specific keywords
-        if (contentLower.includes('def ') || contentLower.includes('import ') && contentLower.includes('print(')) {
-            return 'python';
-        } else if (contentLower.includes('function ') || contentLower.includes('const ') || contentLower.includes('console.log')) {
-            return 'javascript';
-        } else if (contentLower.includes('interface ') || contentLower.includes(': string') || contentLower.includes('type ')) {
-            return 'typescript';
-        } else if (contentLower.includes('<html') || contentLower.includes('<div') || contentLower.includes('<!doctype')) {
-            return 'html';
-        } else if (contentLower.includes('{') && (contentLower.includes('color:') || contentLower.includes('margin:'))) {
-            return 'css';
-        } else if (contentLower.includes('select ') || contentLower.includes('from ') || contentLower.includes('where ')) {
-            return 'sql';
-        } else if (contentLower.includes('#!/bin/bash') || contentLower.includes('echo ') || contentLower.includes('chmod ')) {
-            return 'shell';
-        } else if (contentLower.includes('{') && contentLower.includes('"')) {
-            return 'json';
-        } else {
-            return 'text';
-        }
-    }
-
-    getExtensionForLanguage(language) {
-        const extensionMap = {
-            'python': 'py',
-            'javascript': 'js',
-            'typescript': 'ts',
-            'html': 'html',
-            'css': 'css',
-            'sql': 'sql',
-            'shell': 'sh',
-            'json': 'json',
-            'markdown': 'md',
-            'text': 'txt'
+    getFileExtension(language) {
+        const extensions = {
+            javascript: 'js',
+            typescript: 'ts',
+            python: 'py',
+            html: 'html',
+            css: 'css',
+            java: 'java',
+            cpp: 'cpp',
+            sql: 'sql',
+            json: 'json'
         };
-        
-        return extensionMap[language] || 'txt';
+        return extensions[language] || 'txt';
     }
 
-    // Cleanup
-    async destroy() {
-        if (this.worker) {
-            await this.worker.terminate();
-            this.worker = null;
+    async enhanceText() {
+        if (!this.results?.text || !window.aiAgent) return;
+
+        try {
+            const prompt = `Please enhance and clean up this extracted text, fixing any OCR errors and improving formatting:
+
+${this.results.text}`;
+
+            const enhanced = await window.aiAgent.processMessage(prompt);
+            
+            // Update results display
+            this.displayResults(enhanced, this.results.analysis);
+            
+            if (window.app) {
+                window.app.showToast('Text enhanced with AI', 'success');
+            }
+        } catch (error) {
+            console.error('Enhancement failed:', error);
+            if (window.app) {
+                window.app.showToast('Enhancement failed', 'error');
+            }
+        }
+    }
+
+    async translateText() {
+        if (!this.results?.text || !window.aiAgent) return;
+
+        const targetLang = prompt('Translate to (en/ar/es/fr/de):');
+        if (!targetLang) return;
+
+        try {
+            const prompt = `Translate this text to ${targetLang}:
+
+${this.results.text}`;
+
+            const translated = await window.aiAgent.processMessage(prompt);
+            
+            // Show translation in a modal or toast
+            if (window.app) {
+                window.app.showToast('Translation completed', 'success');
+                // Could show in agent response panel
+                if (window.app.agentResponsePanel) {
+                    const content = document.getElementById('agent-response-content');
+                    if (content) {
+                        content.textContent = translated;
+                        window.app.agentResponsePanel.classList.remove('hidden');
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Translation failed:', error);
+            if (window.app) {
+                window.app.showToast('Translation failed', 'error');
+            }
+        }
+    }
+
+    processAnother() {
+        // Reset state
+        this.currentImage = null;
+        this.results = null;
+        
+        // Clear UI
+        document.getElementById('image-preview').innerHTML = '';
+        document.getElementById('ocr-results').innerHTML = '';
+        document.getElementById('image-input').value = '';
+        
+        this.hideProcessing();
+    }
+
+    showProcessing() {
+        const progressElement = document.getElementById('ocr-progress');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        
+        if (progressElement) progressElement.classList.remove('hidden');
+        if (progressBar) progressBar.style.width = '0%';
+        if (progressText) progressText.textContent = 'Initializing...';
+    }
+
+    hideProcessing() {
+        const progressElement = document.getElementById('ocr-progress');
+        if (progressElement) progressElement.classList.add('hidden');
+    }
+
+    showError(message) {
+        console.error('OCR Error:', message);
+        
+        const resultsContainer = document.getElementById('ocr-results');
+        if (resultsContainer) {
+            resultsContainer.innerHTML = `
+                <div class="text-center py-8">
+                    <div class="text-red-400 text-4xl mb-4">⚠️</div>
+                    <h3 class="text-lg font-semibold text-red-400 mb-2">Processing Failed</h3>
+                    <p class="text-gray-400 mb-4">${message}</p>
+                    <button onclick="ocrHandler.processAnother()" 
+                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors">
+                        Try Again
+                    </button>
+                </div>
+            `;
+        }
+        
+        this.hideProcessing();
+        
+        if (window.app) {
+            window.app.showToast(message, 'error');
         }
     }
 }
 
-// Initialize OCR handler
-const ocrHandler = new OCRHandler();
+// Initialize OCR Handler
+window.ocrHandler = new OCRHandler();
 
-// Cleanup on page unload
-window.addEventListener('beforeunload', () => {
-    ocrHandler.destroy();
-});
-
-// Export for global access
-window.ocrHandler = ocrHandler;
+console.log('📷 OCR Handler loaded');

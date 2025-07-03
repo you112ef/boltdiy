@@ -49,33 +49,53 @@ class BoltDIYApp {
         }
     }
     
-    showErrorPage() {
-        document.body.innerHTML = `
-            <div class="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-                <div class="text-center max-w-md mx-4">
-                    <div class="text-6xl mb-4">⚠️</div>
-                    <h1 class="text-2xl font-bold mb-4">خطأ في تحميل التطبيق</h1>
-                    <p class="text-gray-400 mb-6">فشل في تحميل العناصر الأساسية للتطبيق. قد تكون هناك مشكلة في الاتصال بالخادم.</p>
-                    <div class="space-y-2">
-                        <button onclick="location.reload()" class="block w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded transition-colors">
-                            إعادة المحاولة
-                        </button>
-                        <button onclick="console.log('Debug info:', {url: location.href, userAgent: navigator.userAgent, timestamp: new Date()})" 
-                                class="block w-full bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded text-sm transition-colors">
-                            إظهار معلومات التشخيص في Console
-                        </button>
-                    </div>
-                    <div class="mt-6 text-xs text-gray-500">
-                        <p>إذا استمرت المشكلة، تحقق من:</p>
-                        <ul class="list-disc list-inside mt-2 space-y-1">
-                            <li>اتصال الإنترنت</li>
-                            <li>إعدادات مانع الإعلانات</li>
-                            <li>إعدادات الأمان في المتصفح</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        `;
+    hideLoadingOverlay() {
+        const overlay = document.getElementById('editor-loading');
+        if (overlay) {
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 1000);
+        }
+    }
+
+    async initializeAgentSystem() {
+        if (window.agentManager) {
+            this.currentAgent = await window.agentManager.initialize();
+            this.updateAgentStatus();
+        }
+    }
+
+    async initializeCollaboration() {
+        if (window.Y && this.settings.collaborativeEditing !== false) {
+            try {
+                this.collaborationProvider = new window.Y.Doc();
+                console.log('✅ Collaboration initialized');
+            } catch (error) {
+                console.warn('⚠️ Collaboration failed to initialize:', error);
+            }
+        }
+    }
+
+    setupAgentResponsePanel() {
+        this.agentResponsePanel = document.getElementById('agent-response-panel');
+    }
+
+    initializeOCR() {
+        if (window.ocrHandler) {
+            window.ocrHandler.initialize();
+        }
+    }
+
+    initializeTerminal() {
+        if (window.terminalHandler) {
+            window.terminalHandler.initialize();
+        }
+    }
+
+    initializeSemanticSearch() {
+        if (window.semanticSearch) {
+            window.semanticSearch.initialize();
+        }
     }
 
     async initializeEditor() {
@@ -86,23 +106,41 @@ class BoltDIYApp {
     }
 
     setupEventListeners() {
-        // Header buttons - تحديث IDs للتطابق مع HTML
-        document.getElementById('toggle-sidebar')?.addEventListener('click', this.toggleSidebar.bind(this));
-        document.getElementById('settings-btn')?.addEventListener('click', this.toggleSettingsModal.bind(this));
+        // Header buttons
+        document.getElementById('menu-toggle')?.addEventListener('click', this.toggleSidebar.bind(this));
+        document.getElementById('search-toggle')?.addEventListener('click', this.toggleSearchModal.bind(this));
+        document.getElementById('terminal-toggle')?.addEventListener('click', this.toggleTerminal.bind(this));
+        document.getElementById('ocr-toggle')?.addEventListener('click', this.toggleOCRModal.bind(this));
+        document.getElementById('settings-toggle')?.addEventListener('click', this.toggleSettingsModal.bind(this));
 
-        // Modal close buttons - تحديث IDs
-        document.getElementById('cancel-settings')?.addEventListener('click', this.closeSettingsModal.bind(this));
-        document.getElementById('save-settings')?.addEventListener('click', this.saveSettingsModal.bind(this));
-        document.getElementById('close-search')?.addEventListener('click', () => this.closeModal('search-modal'));
-        document.getElementById('close-ocr')?.addEventListener('click', this.closeOCRModal.bind(this));
-        document.getElementById('toggle-terminal')?.addEventListener('click', this.closeTerminal.bind(this));
-        document.getElementById('minimize-ai')?.addEventListener('click', this.minimizeAIPanel.bind(this));
+        // Admin dashboard
+        document.getElementById('admin-dashboard-toggle')?.addEventListener('click', this.toggleAdminDashboard.bind(this));
+
+        // Modal close buttons
+        document.getElementById('settings-close')?.addEventListener('click', this.closeSettingsModal.bind(this));
+        document.getElementById('ocr-close')?.addEventListener('click', this.closeOCRModal.bind(this));
+        document.getElementById('search-close')?.addEventListener('click', this.closeSearchModal.bind(this));
+        document.getElementById('terminal-close')?.addEventListener('click', this.closeTerminal.bind(this));
+
+        // Settings buttons
+        document.getElementById('settings-save')?.addEventListener('click', this.saveSettings.bind(this));
+        document.getElementById('settings-reset')?.addEventListener('click', this.resetSettings.bind(this));
+
+        // Agent system
+        document.getElementById('agent-switch')?.addEventListener('click', this.openAgentSwitch.bind(this));
+        document.getElementById('send-message')?.addEventListener('click', this.sendAgentMessage.bind(this));
+
+        // Response panel
+        document.getElementById('response-close')?.addEventListener('click', this.closeResponsePanel.bind(this));
+        document.getElementById('response-minimize')?.addEventListener('click', this.minimizeResponsePanel.bind(this));
+        document.getElementById('apply-response')?.addEventListener('click', this.applyResponse.bind(this));
+        document.getElementById('copy-response')?.addEventListener('click', this.copyResponse.bind(this));
 
         // Search modal
         document.getElementById('search-input')?.addEventListener('input', this.handleSearch.bind(this));
 
         // File operations
-        document.getElementById('new-file-btn')?.addEventListener('click', this.createNewFile.bind(this));
+        document.getElementById('new-file')?.addEventListener('click', this.createNewFile.bind(this));
 
         // AI Agent commands
         document.querySelectorAll('.agent-cmd').forEach(btn => {
@@ -116,17 +154,7 @@ class BoltDIYApp {
         document.getElementById('agent-input')?.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                this.handleAgentInput(e.target.value);
-                e.target.value = '';
-            }
-        });
-        
-        // Send button
-        document.getElementById('send-agent')?.addEventListener('click', () => {
-            const input = document.getElementById('agent-input');
-            if (input.value.trim()) {
-                this.handleAgentInput(input.value);
-                input.value = '';
+                this.sendAgentMessage();
             }
         });
 
@@ -136,17 +164,19 @@ class BoltDIYApp {
         // Modal backdrop clicks
         this.setupModalBackdropClicks();
 
-        // Keyboard shortcuts for search
-        document.addEventListener('keydown', (e) => {
-            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-                e.preventDefault();
-                this.toggleSearchModal();
-            }
+        // OCR handlers
+        document.getElementById('drop-zone')?.addEventListener('click', () => {
+            document.getElementById('image-input')?.click();
         });
+        
+        document.getElementById('image-input')?.addEventListener('change', this.handleImageUpload.bind(this));
+
+        // Sidebar overlay for mobile
+        document.getElementById('sidebar-overlay')?.addEventListener('click', this.closeSidebar.bind(this));
     }
 
     setupModalBackdropClicks() {
-        const modals = ['search-modal', 'settings-modal', 'ocr-modal'];
+        const modals = ['search-modal', 'settings-modal', 'ocr-modal', 'agent-switch-modal'];
         modals.forEach(modalId => {
             const modal = document.getElementById(modalId);
             if (modal) {
@@ -157,6 +187,20 @@ class BoltDIYApp {
                 });
             }
         });
+    }
+
+    updateAgentStatus() {
+        if (this.currentAgent) {
+            const statusElement = document.getElementById('agent-name');
+            const typeElement = document.getElementById('agent-type');
+            const modelElement = document.getElementById('agent-model');
+            const headerElement = document.getElementById('current-agent-name');
+            
+            if (statusElement) statusElement.textContent = this.currentAgent.name;
+            if (typeElement) typeElement.textContent = this.currentAgent.type;
+            if (modelElement) modelElement.textContent = this.currentAgent.model;
+            if (headerElement) headerElement.textContent = this.currentAgent.name;
+        }
     }
 
     setupMobileHandlers() {
@@ -213,6 +257,17 @@ class BoltDIYApp {
         }
     }
 
+    toggleModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            if (modal.classList.contains('hidden')) {
+                this.openModal(modalId);
+            } else {
+                this.closeModal(modalId);
+            }
+        }
+    }
+
     openModal(modalId) {
         document.getElementById(modalId)?.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
@@ -227,35 +282,86 @@ class BoltDIYApp {
         this.closeModal('settings-modal');
     }
 
+    toggleOCRModal() {
+        this.toggleModal('ocr-modal');
+    }
+
     closeOCRModal() {
         this.closeModal('ocr-modal');
     }
-    
-    saveSettingsModal() {
-        // حفظ الإعدادات
-        const openaiKey = document.getElementById('openai-key')?.value;
-        const anthropicKey = document.getElementById('anthropic-key')?.value;
-        const googleKey = document.getElementById('google-key')?.value;
-        
-        if (openaiKey) this.settings.openaiKey = openaiKey;
-        if (anthropicKey) this.settings.anthropicKey = anthropicKey;
-        if (googleKey) this.settings.googleKey = googleKey;
-        
-        this.saveSettings();
-        this.showToast('تم حفظ الإعدادات', 'success');
-        this.closeModal('settings-modal');
+
+    closeSearchModal() {
+        this.closeModal('search-modal');
     }
-    
-    minimizeAIPanel() {
-        const panel = document.querySelector('.fixed.bottom-4.right-4');
-        if (panel) {
-            panel.classList.toggle('hidden');
+
+    toggleAdminDashboard() {
+        if (window.adminDashboard) {
+            window.adminDashboard.toggle();
+        }
+    }
+
+    openAgentSwitch() {
+        if (window.agentManager) {
+            window.agentManager.showAgentSwitcher();
+        }
+    }
+
+    sendAgentMessage() {
+        const input = document.getElementById('agent-input');
+        if (input && input.value.trim()) {
+            this.handleAgentInput(input.value.trim());
+            input.value = '';
+        }
+    }
+
+    closeResponsePanel() {
+        if (this.agentResponsePanel) {
+            this.agentResponsePanel.classList.add('hidden');
+        }
+    }
+
+    minimizeResponsePanel() {
+        // Toggle minimized state
+        if (this.agentResponsePanel) {
+            this.agentResponsePanel.classList.toggle('minimized');
+        }
+    }
+
+    applyResponse() {
+        // Apply AI response to current file
+        const content = document.getElementById('agent-response-content')?.textContent;
+        if (content && this.currentFile) {
+            this.showToast('Response applied to file', 'success');
+        }
+    }
+
+    copyResponse() {
+        const content = document.getElementById('agent-response-content')?.textContent;
+        if (content) {
+            navigator.clipboard.writeText(content);
+            this.showToast('Response copied to clipboard', 'success');
+        }
+    }
+
+    handleImageUpload(event) {
+        const file = event.target.files[0];
+        if (file && window.ocrHandler) {
+            window.ocrHandler.processImage(file);
+        }
+    }
+
+    resetSettings() {
+        if (confirm('Reset all settings to defaults?')) {
+            localStorage.removeItem('boltdiy_settings');
+            this.settings = {};
+            this.showToast('Settings reset to defaults', 'success');
+            location.reload();
         }
     }
 
     // Terminal management
     toggleTerminal() {
-        const terminal = document.getElementById('terminal-container');
+        const terminal = document.getElementById('terminal-panel');
         if (terminal && terminal.classList.contains('hidden')) {
             terminal.classList.remove('hidden');
             if (window.terminalHandler) {
@@ -267,7 +373,7 @@ class BoltDIYApp {
     }
 
     closeTerminal() {
-        document.getElementById('terminal-container')?.classList.add('hidden');
+        document.getElementById('terminal-panel')?.classList.add('hidden');
     }
 
     // Search functionality
@@ -433,14 +539,148 @@ console.log('🚀 BoltDIY Platform Ready!');`,
         const fullPath = filename.includes('/') ? filename : `src/${filename}`;
         const language = this.detectLanguage(filename);
         
+        // Create with appropriate template
+        let content = this.generateFileTemplate(filename, language);
+        
         this.fileSystem.set(fullPath, {
-            content: `// New file: ${filename}\n`,
+            content: content,
             language: language
         });
         
         this.updateFileTree();
         this.openFile(fullPath);
         this.showToast(`Created ${filename}`, 'success');
+    }
+
+    generateFileTemplate(filename, language) {
+        const ext = filename.split('.').pop()?.toLowerCase();
+        const baseName = filename.replace(/\.[^/.]+$/, "");
+        
+        switch (ext) {
+            case 'html':
+                return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${baseName}</title>
+</head>
+<body>
+    <h1>Welcome to ${baseName}</h1>
+</body>
+</html>`;
+            case 'css':
+                return `/* Styles for ${baseName} */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+}`;
+            case 'js':
+                return `// ${baseName} JavaScript Module
+
+'use strict';
+
+/**
+ * Main function for ${baseName}
+ */
+function main() {
+    console.log('${baseName} loaded successfully');
+}
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', main);
+} else {
+    main();
+}`;
+            case 'ts':
+                return `// ${baseName} TypeScript Module
+
+interface Config {
+    name: string;
+    version: string;
+}
+
+class ${baseName.charAt(0).toUpperCase() + baseName.slice(1)} {
+    private config: Config;
+
+    constructor(config: Config) {
+        this.config = config;
+    }
+
+    public initialize(): void {
+        console.log(\`\${this.config.name} v\${this.config.version} initialized\`);
+    }
+}
+
+export default ${baseName.charAt(0).toUpperCase() + baseName.slice(1)};`;
+            case 'py':
+                return `#!/usr/bin/env python3
+"""
+${baseName} - Python Module
+"""
+
+__version__ = "1.0.0"
+__author__ = "BoltDIY"
+
+
+def main():
+    """Main function for ${baseName}"""
+    print(f"${baseName} v{__version__} started")
+
+
+if __name__ == "__main__":
+    main()`;
+            case 'md':
+                return `# ${baseName.charAt(0).toUpperCase() + baseName.slice(1)}
+
+## Overview
+
+Description of ${baseName}
+
+## Features
+
+- Feature 1
+- Feature 2
+- Feature 3
+
+## Usage
+
+\`\`\`bash
+# Example usage
+echo "Hello ${baseName}"
+\`\`\`
+
+## License
+
+MIT License`;
+            case 'json':
+                return `{
+  "name": "${baseName}",
+  "version": "1.0.0",
+  "description": "Configuration file for ${baseName}",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \\"No tests specified\\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}`;
+            default:
+                return `// New file: ${filename}
+// Created by BoltDIY Platform
+
+`;
+        }
     }
 
     detectLanguage(filename) {
@@ -493,8 +733,11 @@ console.log('🚀 BoltDIY Platform Ready!');`,
     }
 
     updateAgentContext(filepath, language) {
-        document.getElementById('current-file').textContent = filepath.split('/').pop();
-        document.getElementById('current-language').textContent = language;
+        const filenameElement = document.getElementById('current-file');
+        const languageElement = document.getElementById('current-language');
+        
+        if (filenameElement) filenameElement.textContent = filepath.split('/').pop();
+        if (languageElement) languageElement.textContent = language;
         
         // Notify AI agent of context change
         if (window.aiAgent) {
@@ -503,6 +746,11 @@ console.log('🚀 BoltDIY Platform Ready!');`,
                 language: language,
                 content: this.fileSystem.get(filepath)?.content || ''
             });
+        }
+
+        // Update agent suggestions if enabled
+        if (this.settings.agentSuggestions && window.agentManager) {
+            window.agentManager.suggestBestAgent(language, filepath);
         }
     }
 
@@ -584,10 +832,16 @@ console.log('🚀 BoltDIY Platform Ready!');`,
             e.preventDefault();
             this.toggleTerminal();
         }
+
+        // Ctrl+Shift+D for admin dashboard
+        if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+            e.preventDefault();
+            this.toggleAdminDashboard();
+        }
         
         // Escape to close modals
         if (e.key === 'Escape') {
-            const openModals = ['search-modal', 'settings-modal', 'ocr-modal'];
+            const openModals = ['search-modal', 'settings-modal', 'ocr-modal', 'agent-switch-modal'];
             openModals.forEach(modalId => {
                 const modal = document.getElementById(modalId);
                 if (modal && !modal.classList.contains('hidden')) {
@@ -596,7 +850,7 @@ console.log('🚀 BoltDIY Platform Ready!');`,
             });
             
             // Also close sidebar on mobile
-            if (window.innerWidth < 1024) {
+            if (window.innerWidth < 640) {
                 this.closeSidebar();
             }
         }
@@ -605,14 +859,78 @@ console.log('🚀 BoltDIY Platform Ready!');`,
     // Settings management
     loadSettings() {
         try {
-            return JSON.parse(localStorage.getItem('boltdiy_settings') || '{}');
+            const defaultSettings = {
+                autoSave: true,
+                collaborativeEditing: true,
+                semanticSearch: true,
+                autoAgentSwitch: true,
+                agentSuggestions: true,
+                agentMemory: true,
+                aiSuggestions: false,
+                hideLineNumbers: false,
+                hideMinimap: false
+            };
+            const saved = JSON.parse(localStorage.getItem('boltdiy_settings') || '{}');
+            return { ...defaultSettings, ...saved };
         } catch {
             return {};
         }
     }
 
     saveSettings() {
+        // Collect all settings from UI
+        const inputs = {
+            'openai-key': 'openaiKey',
+            'anthropic-key': 'anthropicKey',
+            'google-key': 'googleKey',
+            'mistral-key': 'mistralKey',
+            'cohere-key': 'cohereKey'
+        };
+
+        const checkboxes = {
+            'auto-save': 'autoSave',
+            'collaborative-editing': 'collaborativeEditing',
+            'semantic-search': 'semanticSearch',
+            'auto-agent-switch': 'autoAgentSwitch',
+            'agent-suggestions': 'agentSuggestions',
+            'agent-memory': 'agentMemory',
+            'ai-suggestions': 'aiSuggestions',
+            'hide-line-numbers': 'hideLineNumbers',
+            'hide-minimap': 'hideMinimap'
+        };
+
+        const selects = {
+            'python-model': 'pythonModel',
+            'js-model': 'jsModel',
+            'web-model': 'webModel',
+            'shell-model': 'shellModel'
+        };
+
+        // Update settings
+        Object.entries(inputs).forEach(([id, key]) => {
+            const element = document.getElementById(id);
+            if (element && element.value) {
+                this.settings[key] = element.value;
+            }
+        });
+
+        Object.entries(checkboxes).forEach(([id, key]) => {
+            const element = document.getElementById(id);
+            if (element) {
+                this.settings[key] = element.checked;
+            }
+        });
+
+        Object.entries(selects).forEach(([id, key]) => {
+            const element = document.getElementById(id);
+            if (element) {
+                this.settings[key] = element.value;
+            }
+        });
+
         localStorage.setItem('boltdiy_settings', JSON.stringify(this.settings));
+        this.showToast('Settings saved successfully', 'success');
+        this.closeModal('settings-modal');
     }
 
     // Toast notifications

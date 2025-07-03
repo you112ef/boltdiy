@@ -1,24 +1,5 @@
-// التشخيص الأولي
-console.log('🔍 App.js loading...', new Date().toLocaleTimeString());
-console.log('📍 Current URL:', window.location.href);
-console.log('📄 Document readyState:', document.readyState);
-
-// التأكد من وجود العناصر الأساسية
-function checkEssentialElements() {
-    const elements = {
-        'monaco-container': document.getElementById('monaco-container'),
-        'sidebar': document.getElementById('sidebar'),
-        'agent-input': document.getElementById('agent-input'),
-        'file-tree': document.getElementById('file-tree')
-    };
-    
-    console.log('🔍 Checking essential elements:');
-    Object.entries(elements).forEach(([name, element]) => {
-        console.log(`  ${element ? '✅' : '❌'} ${name}:`, element);
-    });
-    
-    return Object.values(elements).every(el => el !== null);
-}
+// BoltDIY AI Agent Platform - Main Application
+console.log('� BoltDIY App initializing...');
 
 // Main application state
 class BoltDIYApp {
@@ -28,35 +9,43 @@ class BoltDIYApp {
         this.fileSystem = new Map();
         this.settings = this.loadSettings();
         this.isInitialized = false;
+        this.agentResponsePanel = null;
+        this.currentAgent = null;
+        this.collaborationProvider = null;
         
         this.init();
     }
 
     async init() {
         try {
-            console.log('🚀 Initializing BoltDIY App...');
+            console.log('� Initializing components...');
             
-            // التحقق من العناصر الأساسية أولاً
-            if (!checkEssentialElements()) {
-                console.error('❌ Essential elements missing, showing error page');
-                this.showErrorPage();
-                return;
-            }
+            // Hide loading overlay
+            this.hideLoadingOverlay();
             
-            console.log('✅ Essential elements found, continuing initialization...');
-            
+            // Initialize core systems
             await this.initializeEditor();
+            await this.initializeAgentSystem();
+            await this.initializeCollaboration();
+            
+            // Setup UI and handlers
             this.setupEventListeners();
             this.setupMobileHandlers();
             this.initializeFileSystem();
-            this.showToast('BoltDIY AI Agent Platform loaded!', 'success');
+            this.setupAgentResponsePanel();
+            
+            // Initialize tools
+            this.initializeOCR();
+            this.initializeTerminal();
+            this.initializeSemanticSearch();
+            
+            this.showToast('🚀 BoltDIY Platform Ready!', 'success');
             this.isInitialized = true;
             
-            console.log('🎉 BoltDIY App initialized successfully!');
+            console.log('✅ App initialized successfully');
         } catch (error) {
             console.error('❌ Failed to initialize app:', error);
             this.showToast('Failed to initialize application', 'error');
-            this.showErrorPage();
         }
     }
     

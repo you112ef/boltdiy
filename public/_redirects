@@ -1,0 +1,34 @@
+# Redirects for Cloudflare Pages - إعدادات التوجيه
+
+# API Routes - توجيه API
+/api/* /api/:splat 200
+/mcp/* /mcp/:splat 200
+
+# Single Page Application - تطبيق صفحة واحدة
+# Redirect all routes to index.html for SPA routing
+/* /index.html 200
+
+# Legacy redirects - توجيهات قديمة
+/dashboard /index.html 200
+/admin /index.html 200
+/settings /index.html 200
+
+# Health check - فحص الصحة
+/health /index.html 200
+/status /index.html 200
+
+# Manifest and service worker
+/manifest.json /manifest.json 200
+/sw.js /sw.js 200
+
+# Robots and sitemap
+/robots.txt /robots.txt 200
+/sitemap.xml /sitemap.xml 200
+
+# Favicon redirects
+/favicon.ico /favicon.ico 200
+/apple-touch-icon.png /apple-touch-icon.png 200
+
+# Force HTTPS redirect (optional)
+http://yourdomain.com/* https://yourdomain.com/:splat 301!
+http://www.yourdomain.com/* https://yourdomain.com/:splat 301!
